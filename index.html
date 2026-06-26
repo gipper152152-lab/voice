@@ -313,15 +313,11 @@ const peers={}; // id->{pc,name,stream,micMuted,speaking,dc,audioEl,gainNode,pee
 let ws=null;
 
 const ICE={iceServers:[
-  {urls:'stun:stun.l.google.com:19302'},
-  {
-    urls:[
-      'turn:free.expressturn.com:3478?transport=udp',
-      'turn:free.expressturn.com:3478?transport=tcp',
-    ],
-    username:'0000000002097871043',
-    credential:'m1GWjHfVEssZv3eLqw21NfpKrtk=',
-  },
+  {urls:'stun:stun.relay.metered.ca:80'},
+  {urls:'turn:global.relay.metered.ca:80',username:'22dcdb3ea099960131a0f099',credential:'g0BEaRysz1LsheIY'},
+  {urls:'turn:global.relay.metered.ca:80?transport=tcp',username:'22dcdb3ea099960131a0f099',credential:'g0BEaRysz1LsheIY'},
+  {urls:'turn:global.relay.metered.ca:443',username:'22dcdb3ea099960131a0f099',credential:'g0BEaRysz1LsheIY'},
+  {urls:'turns:global.relay.metered.ca:443?transport=tcp',username:'22dcdb3ea099960131a0f099',credential:'g0BEaRysz1LsheIY'},
 ]};
 
 // AudioContext for gain control
