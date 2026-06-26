@@ -619,6 +619,23 @@ function renderParticipants() {
 
 // ---- PeerJS ----
 
+function resetJoinBtn() {
+  const btn = document.getElementById('join-btn');
+  btn.textContent = '🔊 Подключиться'; btn.disabled = false;
+}
+
+function makePeer(id) {
+  return new Peer(id, {
+    debug: 0,
+    config: {
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' }
+      ]
+    }
+  });
+}
+
 async function joinRoom() {
   const name = document.getElementById('name-input').value.trim();
   const room = document.getElementById('room-input').value.trim().toLowerCase().replace(/\s+/g, '-');
@@ -630,31 +647,43 @@ async function joinRoom() {
   const btn = document.getElementById('join-btn');
   btn.textContent = '⏳ Подключаюсь...'; btn.disabled = true;
 
-  const audioConstraints = selectedMicId
-    ? { deviceId: { exact: selectedMicId } }
-    : true;
+  const audioConstraints = selectedMicId ? { deviceId: { exact: selectedMicId } } : true;
 
   try {
     localStream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints, video: false });
   } catch(e) {
-    btn.textContent = '🔊 Подключиться'; btn.disabled = false;
+    resetJoinBtn();
     return showError('Нет доступа к микрофону. Разреши доступ в браузере.');
   }
 
   const hostPeerId = ROOM_PREFIX + room;
-  peer = new Peer(ROOM_PREFIX + room + '__' + Date.now(), { debug: 0 });
+  peer = makePeer(ROOM_PREFIX + room + '__' + Date.now());
+
+  // Таймаут на само подключение к PeerJS серверу
+  const peerOpenTimeout = setTimeout(() => {
+    peer.destroy();
+    resetJoinBtn();
+    showError('Сервер не отвечает. Попробуй ещё раз.');
+  }, 8000);
 
   peer.on('open', () => {
+    clearTimeout(peerOpenTimeout);
     const testConn = peer.connect(hostPeerId, { label: 'data' });
     let resolved = false;
     testConn.on('open', () => { if (resolved) return; resolved = true; isHost = false; hostConn = testConn; setupJoiner(hostPeerId); });
     testConn.on('error', () => { if (resolved) return; resolved = true; testConn.close(); peer.destroy(); becomeHost(hostPeerId); });
     setTimeout(() => { if (!resolved) { resolved = true; becomeHost(hostPeerId); } }, 2500);
   });
+
+  peer.on('error', (e) => {
+    clearTimeout(peerOpenTimeout);
+    resetJoinBtn();
+    showError('Ошибка подключения: ' + e.type + '. Попробуй ещё раз.');
+  });
 }
 
 function becomeHost(hostPeerId) {
-  peer = new Peer(hostPeerId, { debug: 0 });
+  peer = makePeer(hostPeerId);
   peer.on('open', () => {
     isHost = true; showRoomUI();
     setStatus('Комната открыта · ' + myRoom, 'green');
@@ -707,8 +736,11 @@ function becomeHost(hostPeerId) {
   peer.on('error', (e) => {
     if (e.type === 'unavailable-id') {
       peer.destroy();
-      peer = new Peer(hostPeerId + '__' + Date.now(), { debug: 0 });
+      peer = makePeer(hostPeerId + '__' + Date.now());
       peer.on('open', () => setupJoiner(hostPeerId));
+    } else {
+      resetJoinBtn();
+      showError('Ошибка: ' + e.type + '. Попробуй ещё раз.');
     }
   });
 }
