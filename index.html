@@ -632,6 +632,10 @@ function resetJoinBtn() {
 
 function makePeer(id) {
   return new Peer(id, {
+    host: '0.peerjs.com',
+    port: 443,
+    secure: true,
+    path: '/',
     debug: 0,
     config: {
       iceServers: [
