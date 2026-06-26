@@ -343,9 +343,12 @@ function makePC(peerId,peerName){
   const pc=new RTCPeerConnection(ICE);
   peers[peerId]={pc,name:peerName,stream:null,micMuted:false,speaking:false};
   localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
+  ensureTile(peerId,peerName);
+  setConnState(peerId,'connecting');
 
   const remoteStream=new MediaStream();
   pc.ontrack=e=>{
+    console.log('[ontrack]',peerId,e.track.kind);
     remoteStream.addTrack(e.track);
     peers[peerId].stream=remoteStream;
     renderPeerTile(peerId,peerName,remoteStream);
@@ -356,7 +359,14 @@ function makePC(peerId,peerName){
     if(e.candidate) wsSend({type:'ice',to:peerId,from:myId,candidate:e.candidate});
   };
 
+  pc.oniceconnectionstatechange=()=>{
+    console.log('[ICE state]',peerId,pc.iceConnectionState);
+    setConnState(peerId,pc.iceConnectionState);
+  };
+
   pc.onconnectionstatechange=()=>{
+    console.log('[PC state]',peerId,pc.connectionState);
+    setConnState(peerId,pc.connectionState);
     if(pc.connectionState==='failed'||pc.connectionState==='disconnected') removePeer(peerId);
   };
 
@@ -474,6 +484,9 @@ function makeTile(id,name,stream,local){
   const lbl=document.createElement('div');lbl.className='tlabel';lbl.id='lbl-'+id;
   lbl.innerHTML=`<span>${local?'Вы ('+name+')':name}</span>`;
   tile.appendChild(lbl);
+  const stat=document.createElement('div');stat.id='stat-'+id;
+  stat.style.cssText='position:absolute;top:8px;right:8px;background:rgba(0,0,0,.7);color:#FEE75C;font-size:10px;font-weight:600;padding:3px 7px;border-radius:5px;display:none;z-index:5';
+  tile.appendChild(stat);
   refreshOv(id,stream);
   return tile;
 }
@@ -483,6 +496,17 @@ function refreshOv(id,stream){
   if(!ov||!v)return;
   const hasV=stream&&stream.getVideoTracks().some(t=>t.enabled&&t.readyState==='live');
   ov.style.display=hasV?'none':'flex';
+}
+function setConnState(id,state){
+  const el=document.getElementById('stat-'+id);
+  if(!el)return;
+  el.textContent=state;
+  el.style.display=(state==='connected'||state==='completed')?'none':'block';
+}
+function ensureTile(id,name){
+  if(document.getElementById('tile-'+id)) return;
+  document.getElementById('emptyHint')?.remove();
+  document.getElementById('grid').appendChild(makeTile(id,name,new MediaStream(),false));
 }
 function setSp(id,sp){
   document.getElementById('tile-'+id)?.classList.toggle('sp',sp);
