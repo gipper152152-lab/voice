@@ -4,593 +4,1160 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VoiceRoom</title>
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --bg:#0D0E14;--surface:#16181F;--card:#1E2029;--border:#2A2D3A;
-  --accent:#5865F2;--accent-h:#4752C4;--accent-dim:rgba(88,101,242,.15);
-  --green:#23A55A;--green-dim:rgba(35,165,90,.12);
-  --red:#F23F43;--red-dim:rgba(242,63,67,.15);
-  --text:#E3E5E8;--muted:#949BA4;--dim:#5C6068;--r:12px;
-}
-body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,sans-serif;min-height:100vh;display:flex;flex-direction:column}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* ── HEADER ── */
-header{padding:14px 20px;border-bottom:1px solid var(--border);background:var(--surface);display:flex;align-items:center;gap:10px}
-.logo{width:30px;height:30px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center}
-.logo svg{width:17px;height:17px;fill:#fff}
-header h1{font-size:15px;font-weight:600}
-.copy-link{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);background:var(--card);border:1px solid var(--border);border-radius:6px;padding:5px 10px;cursor:pointer;transition:border-color .15s;user-select:none}
-.copy-link:hover{border-color:var(--accent)}
-.copy-link svg{width:12px;height:12px;fill:var(--muted)}
-.copied-toast{font-size:11px;color:var(--green);opacity:0;transition:opacity .2s;pointer-events:none}
-.copied-toast.show{opacity:1}
+  :root {
+    --bg: #0D0E14;
+    --surface: #16181F;
+    --card: #1E2029;
+    --border: #2A2D3A;
+    --accent: #5865F2;
+    --accent-hover: #4752C4;
+    --accent-dim: rgba(88, 101, 242, 0.15);
+    --green: #23A55A;
+    --green-dim: rgba(35, 165, 90, 0.15);
+    --red: #F23F43;
+    --red-dim: rgba(242, 63, 67, 0.15);
+    --text: #E3E5E8;
+    --muted: #949BA4;
+    --dim: #5C6068;
+    --radius: 12px;
+  }
 
-/* ── LAYOUT ── */
-main{flex:1;display:flex;overflow:hidden}
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
 
-/* ── SIDEBAR ── */
-.sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:14px 0;flex-shrink:0}
-.ch-label{font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.9px;padding:0 16px;margin-bottom:4px}
-.channel{display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:6px;margin:0 4px;color:var(--muted);font-size:13px;cursor:default}
-.channel.active{background:var(--accent-dim);color:var(--accent)}
-.channel svg{width:15px;height:15px;flex-shrink:0;fill:currentColor}
-.side-divider{height:1px;background:var(--border);margin:10px 0}
-.side-peers{padding:0 4px;display:flex;flex-direction:column;gap:2px}
-.side-peer{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px}
-.s-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;position:relative}
-.s-av::after{content:'';position:absolute;bottom:-1px;right:-1px;width:8px;height:8px;border-radius:50%;border:2px solid var(--surface);background:var(--green)}
-.s-av.speaking{box-shadow:0 0 0 2px var(--green)}
-.side-peer span{font-size:12px;color:var(--muted)}
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
-/* ── CONTENT ── */
-.content{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.status-bar{display:flex;align-items:center;gap:8px;padding:7px 18px;background:var(--green-dim);border-bottom:1px solid rgba(35,165,90,.2);font-size:12px;color:var(--green);font-weight:500}
-.status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
-.status-bar .conn{margin-left:auto;color:rgba(35,165,90,.6);font-size:11px}
+  header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface);
+  }
 
-/* ── VIDEO GRID ── */
-.grid{flex:1;padding:16px;display:grid;gap:10px;align-content:start;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));overflow-y:auto}
-.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;color:var(--dim);grid-column:1/-1}
-.empty svg{width:44px;height:44px;fill:var(--dim);opacity:.35}
-.empty p{font-size:13px}
+  .logo {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
 
-/* ── TILE ── */
-.tile{background:var(--card);border-radius:var(--r);border:2px solid transparent;aspect-ratio:16/9;position:relative;overflow:hidden;transition:border-color .2s}
-.tile.speaking{border-color:var(--green)}
-.tile video{width:100%;height:100%;object-fit:cover;display:block}
-.tile-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:var(--card)}
-.tile-overlay.hidden{display:none}
-.big-av{width:68px;height:68px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700}
-.bars{display:flex;align-items:center;gap:3px;height:18px;opacity:0;transition:opacity .2s}
-.bars.on{opacity:1}
-.bar{width:3px;border-radius:2px;background:var(--green);animation:wave .75s ease-in-out infinite}
-.bar:nth-child(2){animation-delay:.12s}
-.bar:nth-child(3){animation-delay:.24s}
-.bar:nth-child(4){animation-delay:.12s}
-@keyframes wave{0%,100%{height:4px}50%{height:16px}}
-.tile-label{position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;font-weight:500;padding:3px 8px;border-radius:4px;backdrop-filter:blur(4px)}
+  .logo svg { width: 18px; height: 18px; fill: white; }
 
-/* ── CONTROLS ── */
-.controls{padding:14px 20px;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:8px}
-.cb{width:46px;height:46px;border-radius:11px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;transition:background .15s,transform .1s}
-.cb:active{transform:scale(.95)}
-.cb svg{width:19px;height:19px;fill:currentColor}
-.cb.def{background:var(--card);color:var(--text);border:1px solid var(--border)}
-.cb.def:hover{background:#22242e}
-.cb.off{background:var(--red-dim);color:var(--red);border:1px solid rgba(242,63,67,.3)}
-.cb.off:hover{background:rgba(242,63,67,.25)}
-.cb.on{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(88,101,242,.3)}
-.cb.on:hover{background:rgba(88,101,242,.22)}
-.cb.leave{background:var(--red);color:#fff;border:none}
-.cb.leave:hover{background:#d63538}
-.tip{position:absolute;bottom:52px;left:50%;transform:translateX(-50%);background:#111;color:#fff;font-size:11px;padding:4px 8px;border-radius:4px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:9}
-.cb:hover .tip{opacity:1}
+  h1 { font-size: 16px; font-weight: 600; letter-spacing: -0.2px; }
 
-/* ── JOIN OVERLAY ── */
-#joinOverlay{position:fixed;inset:0;background:rgba(13,14,20,.96);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(10px)}
-.jcard{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:36px 32px;width:400px;display:flex;flex-direction:column;align-items:center;gap:0}
-.jcard .jlogo{width:52px;height:52px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:18px}
-.jcard .jlogo svg{width:28px;height:28px;fill:#fff}
-.jcard h2{font-size:20px;font-weight:600;margin-bottom:6px}
-.jcard p{color:var(--muted);font-size:13px;text-align:center;margin-bottom:22px;line-height:1.55}
-.preview{width:100%;aspect-ratio:16/9;background:#0a0b10;border-radius:9px;border:1px solid var(--border);margin-bottom:16px;overflow:hidden;position:relative}
-.preview video{width:100%;height:100%;object-fit:cover}
-.prev-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;color:var(--muted);font-size:12px}
-.prev-empty svg{width:28px;height:28px;fill:var(--dim)}
-input[type=text]{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:9px 13px;margin-bottom:12px;outline:none;transition:border-color .15s;font-family:inherit}
-input[type=text]:focus{border-color:var(--accent)}
-.dev-row{display:flex;gap:7px;width:100%;margin-bottom:16px}
-select{background:var(--surface);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:12px;padding:8px 9px;outline:none;cursor:pointer;font-family:inherit;transition:border-color .15s;flex:1}
-select:focus{border-color:var(--accent)}
-.join-btn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:9px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s;font-family:inherit}
-.join-btn:hover{background:var(--accent-h)}
-.room-pill{font-size:11px;color:var(--dim);margin-bottom:14px}
-.room-pill span{color:var(--accent);font-weight:600}
+  .room-id {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--card);
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    transition: border-color 0.15s;
+  }
+  .room-id:hover { border-color: var(--accent); }
+  .room-id svg { width: 12px; height: 12px; fill: var(--muted); }
 
-/* ── SETTINGS ── */
-#settingsPanel{position:fixed;inset:0;background:rgba(13,14,20,.8);display:none;align-items:center;justify-content:center;z-index:50;backdrop-filter:blur(6px)}
-#settingsPanel.open{display:flex}
-.scard{background:var(--card);border:1px solid var(--border);border-radius:14px;width:380px;overflow:hidden}
-.shdr{padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.shdr h3{font-size:15px;font-weight:600}
-.xbtn{width:26px;height:26px;border-radius:5px;border:none;background:var(--surface);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center}
-.xbtn:hover{background:var(--border);color:var(--text)}
-.xbtn svg{width:15px;height:15px;fill:currentColor}
-.sbody{padding:18px 22px;display:flex;flex-direction:column;gap:14px}
-.srow{display:flex;flex-direction:column;gap:5px}
-.slbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
-.vrow{display:flex;align-items:center;gap:9px}
-input[type=range]{flex:1;accent-color:var(--accent);cursor:pointer}
-.vv{font-size:12px;color:var(--muted);min-width:34px;text-align:right}
-.sftr{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:7px}
-.bghost{padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:13px;cursor:pointer;font-family:inherit}
-.bghost:hover{background:var(--surface);color:var(--text)}
-.bprim{padding:7px 14px;border-radius:7px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit}
-.bprim:hover{background:var(--accent-h)}
+  .copied {
+    color: var(--green);
+    font-size: 11px;
+    margin-left: auto;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .copied.show { opacity: 1; }
 
-@media(max-width:580px){.sidebar{display:none}.jcard{width:92vw;padding:26px 18px}}
+  main { flex: 1; display: flex; overflow: hidden; }
+
+  .sidebar {
+    width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 16px 0;
+    flex-shrink: 0;
+  }
+
+  .sidebar-section { padding: 0 12px; margin-bottom: 8px; }
+
+  .channel-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 0 4px;
+    margin-bottom: 4px;
+  }
+
+  .channel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.1s;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .channel:hover { background: var(--card); color: var(--text); }
+  .channel.active { background: var(--accent-dim); color: var(--accent); }
+  .channel svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  .participants-list { padding: 0 12px; margin-top: 8px; }
+
+  .participant {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--muted);
+    position: relative;
+  }
+
+  .avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .avatar::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; right: -1px;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    border: 2px solid var(--surface);
+    background: var(--green);
+  }
+
+  .avatar.speaking {
+    box-shadow: 0 0 0 2px var(--green);
+  }
+
+  .participant-name { font-size: 13px; flex: 1; }
+
+  .mic-icon { width: 14px; height: 14px; fill: var(--dim); }
+  .mic-icon.muted { fill: var(--red); }
+
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .video-grid {
+    flex: 1;
+    padding: 20px;
+    display: grid;
+    gap: 12px;
+    overflow: hidden;
+    align-content: start;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+
+  .video-tile {
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    aspect-ratio: 16/9;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .video-tile.speaking { border-color: var(--green); }
+
+  .video-tile video {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    background: #000;
+  }
+
+  .tile-label {
+    position: absolute;
+    bottom: 10px; left: 10px;
+    background: rgba(0,0,0,0.65);
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 4px;
+    backdrop-filter: blur(4px);
+    display: flex; align-items: center; gap: 5px;
+  }
+
+  .tile-muted-icon {
+    width: 12px; height: 12px;
+    fill: var(--red);
+  }
+
+  .no-video-overlay {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 10px;
+    background: var(--card);
+  }
+
+  .big-avatar {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    font-weight: 600;
+  }
+
+  .wave-bars {
+    display: flex; align-items: center; gap: 3px;
+    height: 20px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .wave-bars.active { opacity: 1; }
+  .bar {
+    width: 3px;
+    border-radius: 2px;
+    background: var(--green);
+    animation: wave 0.8s ease-in-out infinite;
+  }
+  .bar:nth-child(2) { animation-delay: 0.1s; }
+  .bar:nth-child(3) { animation-delay: 0.2s; }
+  .bar:nth-child(4) { animation-delay: 0.1s; }
+
+  @keyframes wave {
+    0%, 100% { height: 4px; }
+    50% { height: 18px; }
+  }
+
+  .controls-bar {
+    padding: 16px 24px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .ctrl-btn {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, transform 0.1s;
+    position: relative;
+  }
+  .ctrl-btn:active { transform: scale(0.95); }
+  .ctrl-btn svg { width: 20px; height: 20px; }
+
+  .ctrl-btn.default {
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .ctrl-btn.default:hover { background: #262835; }
+  .ctrl-btn.default svg { fill: var(--text); }
+
+  .ctrl-btn.muted-state {
+    background: var(--red-dim);
+    border: 1px solid rgba(242,63,67,0.3);
+  }
+  .ctrl-btn.muted-state svg { fill: var(--red); }
+  .ctrl-btn.muted-state:hover { background: rgba(242,63,67,0.25); }
+
+  .ctrl-btn.danger {
+    background: var(--red);
+    border: none;
+  }
+  .ctrl-btn.danger svg { fill: white; }
+  .ctrl-btn.danger:hover { background: #D63538; }
+
+  .ctrl-btn.active-state {
+    background: var(--accent-dim);
+    border: 1px solid rgba(88,101,242,0.3);
+  }
+  .ctrl-btn.active-state svg { fill: var(--accent); }
+  .ctrl-btn.active-state:hover { background: rgba(88,101,242,0.25); }
+
+  .tooltip {
+    position: absolute;
+    bottom: 54px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #111;
+    color: white;
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 10;
+  }
+  .ctrl-btn:hover .tooltip { opacity: 1; }
+
+  .join-overlay {
+    position: fixed; inset: 0;
+    background: rgba(13,14,20,0.95);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+  }
+
+  .join-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px;
+    width: 420px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .join-logo {
+    width: 56px; height: 56px;
+    background: var(--accent);
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 20px;
+  }
+  .join-logo svg { width: 30px; height: 30px; fill: white; }
+
+  .join-card h2 { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+  .join-card p { color: var(--muted); font-size: 14px; margin-bottom: 28px; line-height: 1.6; }
+
+  .preview-box {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #0a0b10;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin-bottom: 20px;
+    overflow: hidden;
+    position: relative;
+  }
+  .preview-box video { width: 100%; height: 100%; object-fit: cover; }
+  .preview-no-video {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .preview-no-video svg { width: 32px; height: 32px; fill: var(--dim); }
+
+  .name-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 14px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    outline: none;
+    transition: border-color 0.15s;
+    font-family: inherit;
+  }
+  .name-input:focus { border-color: var(--accent); }
+
+  .device-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .device-select {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 12px;
+    padding: 8px 10px;
+    outline: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.15s;
+  }
+  .device-select:focus { border-color: var(--accent); }
+
+  .join-btn {
+    width: 100%;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 13px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    font-family: inherit;
+  }
+  .join-btn:hover { background: var(--accent-hover); }
+  .join-btn:active { transform: scale(0.99); }
+
+  .settings-panel {
+    position: fixed; inset: 0;
+    background: rgba(13,14,20,0.8);
+    display: none; align-items: center; justify-content: center;
+    z-index: 50;
+    backdrop-filter: blur(6px);
+  }
+  .settings-panel.open { display: flex; }
+
+  .settings-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 400px;
+    overflow: hidden;
+  }
+
+  .settings-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .settings-header h3 { font-size: 16px; font-weight: 600; }
+
+  .close-btn {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    border: none;
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.1s;
+  }
+  .close-btn:hover { background: var(--border); color: var(--text); }
+  .close-btn svg { width: 16px; height: 16px; fill: currentColor; }
+
+  .settings-body { padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+
+  .setting-row { display: flex; flex-direction: column; gap: 6px; }
+  .setting-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .setting-label svg { width: 14px; height: 14px; fill: var(--dim); }
+
+  .settings-select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 13px;
+    padding: 9px 12px;
+    outline: none;
+    cursor: pointer;
+    font-family: inherit;
+    width: 100%;
+    transition: border-color 0.15s;
+  }
+  .settings-select:focus { border-color: var(--accent); }
+
+  .vol-row { display: flex; align-items: center; gap: 10px; }
+  .vol-slider {
+    flex: 1;
+    accent-color: var(--accent);
+    height: 4px;
+    cursor: pointer;
+  }
+  .vol-val { font-size: 12px; color: var(--muted); min-width: 32px; text-align: right; }
+
+  .settings-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: flex-end; gap: 8px;
+  }
+
+  .btn-ghost {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.1s, color 0.1s;
+  }
+  .btn-ghost:hover { background: var(--surface); color: var(--text); }
+
+  .btn-primary {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    background: var(--accent);
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.1s;
+  }
+  .btn-primary:hover { background: var(--accent-hover); }
+
+  .status-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 20px;
+    background: var(--green-dim);
+    border-bottom: 1px solid rgba(35,165,90,0.2);
+    font-size: 12px;
+    color: var(--green);
+    font-weight: 500;
+  }
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .empty-room {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    height: 100%;
+    gap: 12px;
+    color: var(--dim);
+  }
+  .empty-room svg { width: 48px; height: 48px; fill: var(--dim); opacity: 0.4; }
+  .empty-room p { font-size: 14px; }
+
+  #connectionState {
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: auto;
+    margin-right: 0;
+  }
+
+  .peer-grid { display: contents; }
+
+  @media (max-width: 600px) {
+    .sidebar { display: none; }
+    .join-card { width: 90vw; padding: 28px 20px; }
+  }
 </style>
 </head>
 <body>
 
-<!-- JOIN OVERLAY -->
-<div id="joinOverlay">
-  <div class="jcard">
-    <div class="jlogo"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg></div>
-    <h2>VoiceRoom</h2>
-    <p>Войди и поделись ссылкой — друзья подключатся в ту же комнату</p>
-    <div class="room-pill">Комната: <span id="roomPill"></span></div>
-    <div class="preview">
-      <video id="previewVid" autoplay muted playsinline></video>
-      <div class="prev-empty" id="prevEmpty">
-        <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-        <span>Камера не доступна</span>
+<div class="join-overlay" id="joinOverlay">
+  <div class="join-card">
+    <div class="join-logo">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+    </div>
+    <h2>Войти в комнату</h2>
+    <p>Поделитесь ссылкой с друзьями чтобы они тоже могли подключиться</p>
+
+    <div class="preview-box">
+      <video id="previewVideo" autoplay muted playsinline></video>
+      <div class="preview-no-video" id="previewNoVideo">
+        <svg viewBox="0 0 24 24"><path d="M21 6.5l-4-4-9.5 9.5-2 4 4-2L21 6.5zM3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/></svg>
+        <span>Камера выключена</span>
       </div>
     </div>
-    <input type="text" id="nameIn" placeholder="Ваше имя" maxlength="24">
-    <div class="dev-row">
-      <select id="micSel"><option>🎤 Загрузка...</option></select>
-      <select id="camSel"><option>📷 Загрузка...</option></select>
+
+    <input class="name-input" id="nameInput" type="text" placeholder="Ваше имя" maxlength="24">
+
+    <div class="device-row">
+      <select class="device-select" id="micSelect">
+        <option>🎤 Микрофон...</option>
+      </select>
+      <select class="device-select" id="camSelect">
+        <option>📷 Камера...</option>
+      </select>
     </div>
-    <button class="join-btn" id="joinBtn">Подключиться</button>
+
+    <button class="join-btn" id="joinBtn">Подключиться к каналу</button>
   </div>
 </div>
 
-<!-- SETTINGS PANEL -->
-<div id="settingsPanel">
-  <div class="scard">
-    <div class="shdr">
-      <h3>Настройки</h3>
-      <button class="xbtn" id="sClose"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+<div class="settings-panel" id="settingsPanel">
+  <div class="settings-card">
+    <div class="settings-header">
+      <h3>Настройки устройств</h3>
+      <button class="close-btn" id="settingsClose">
+        <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      </button>
     </div>
-    <div class="sbody">
-      <div class="srow"><div class="slbl">Микрофон</div><select id="sMic"></select></div>
-      <div class="srow"><div class="slbl">Камера</div><select id="sCam"></select></div>
-      <div class="srow">
-        <div class="slbl">Громкость входящих</div>
-        <div class="vrow"><input type="range" id="volR" min="0" max="100" value="100"><span class="vv" id="volV">100%</span></div>
+    <div class="settings-body">
+      <div class="setting-row">
+        <div class="setting-label">
+          <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/></svg>
+          Микрофон
+        </div>
+        <select class="settings-select" id="settingsMic"></select>
+      </div>
+      <div class="setting-row">
+        <div class="setting-label">Громкость входящих</div>
+        <div class="vol-row">
+          <input type="range" class="vol-slider" id="volSlider" min="0" max="100" value="100">
+          <span class="vol-val" id="volVal">100%</span>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-label">
+          <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+          Камера
+        </div>
+        <select class="settings-select" id="settingsCam"></select>
       </div>
     </div>
-    <div class="sftr">
-      <button class="bghost" id="sCancel">Отмена</button>
-      <button class="bprim" id="sApply">Применить</button>
+    <div class="settings-footer">
+      <button class="btn-ghost" id="settingsCancel">Отмена</button>
+      <button class="btn-primary" id="settingsSave">Применить</button>
     </div>
   </div>
 </div>
 
-<!-- APP -->
 <header>
-  <div class="logo"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg></div>
+  <div class="logo">
+    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+  </div>
   <h1>VoiceRoom</h1>
-  <div class="copy-link" id="copyBtn"><svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Копировать ссылку</div>
-  <span class="copied-toast" id="copiedToast">Скопировано!</span>
+  <div class="room-id" id="roomIdBtn" title="Копировать ссылку">
+    <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+    <span id="roomIdLabel">Копировать ссылку</span>
+  </div>
+  <span class="copied" id="copiedMsg">Ссылка скопирована!</span>
 </header>
 
 <main>
   <div class="sidebar">
-    <div class="ch-label">Голосовые</div>
-    <div class="channel active"><svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/></svg>Общий</div>
-    <div class="side-divider"></div>
-    <div class="side-peers" id="sidePeers"></div>
+    <div class="sidebar-section">
+      <div class="channel-label">Голосовые</div>
+      <div class="channel active" id="channelGeneral">
+        <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/></svg>
+        Общий
+      </div>
+    </div>
+    <div class="participants-list" id="sideParticipants"></div>
   </div>
 
   <div class="content">
-    <div class="status-bar" id="statusBar" style="display:none">
+    <div id="statusBar" style="display:none;" class="status-bar">
       <div class="status-dot"></div>
-      <span id="statusTxt">Подключено</span>
-      <span class="conn" id="connLbl"></span>
+      <span id="statusText">Подключено</span>
+      <span id="connectionState"></span>
     </div>
-    <div class="grid" id="grid">
-      <div class="empty" id="emptyMsg">
+    <div class="video-grid" id="videoGrid">
+      <div class="empty-room" id="emptyRoom">
         <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-        <p>Нажми «Подключиться» чтобы войти в комнату</p>
+        <p>Подключитесь чтобы увидеть участников</p>
       </div>
     </div>
-    <div class="controls">
-      <button class="cb def" id="micBtn"><svg id="micSvg" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/></svg><span class="tip">Выключить микрофон</span></button>
-      <button class="cb def" id="camBtn"><svg id="camSvg" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg><span class="tip">Выключить камеру</span></button>
-      <button class="cb def" id="screenBtn"><svg viewBox="0 0 24 24"><path d="M21 3H3c-1.11 0-2 .89-2 2v12c0 1.1.89 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.11-.9-2-2-2zm0 14H3V5h18v12z"/></svg><span class="tip">Демонстрация экрана</span></button>
-      <button class="cb def" id="settingsBtn"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg><span class="tip">Настройки</span></button>
-      <button class="cb leave" id="leaveBtn"><svg viewBox="0 0 24 24"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg><span class="tip">Покинуть</span></button>
+    <div class="controls-bar">
+      <button class="ctrl-btn default" id="micBtn" title="">
+        <svg viewBox="0 0 24 24" id="micIcon"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/></svg>
+        <span class="tooltip">Выключить микрофон</span>
+      </button>
+      <button class="ctrl-btn default" id="camBtn">
+        <svg viewBox="0 0 24 24" id="camIcon"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+        <span class="tooltip">Выключить камеру</span>
+      </button>
+      <button class="ctrl-btn default" id="screenBtn">
+        <svg viewBox="0 0 24 24"><path d="M21 3H3c-1.11 0-2 .89-2 2v12c0 1.1.89 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.11-.9-2-2-2zm0 14H3V5h18v12z"/></svg>
+        <span class="tooltip">Демонстрация экрана</span>
+      </button>
+      <button class="ctrl-btn default" id="settingsBtn">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+        <span class="tooltip">Настройки</span>
+      </button>
+      <button class="ctrl-btn danger" id="leaveBtn">
+        <svg viewBox="0 0 24 24"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+        <span class="tooltip">Покинуть</span>
+      </button>
     </div>
   </div>
 </main>
 
 <script>
-// ── helpers ──
-const COLORS=['#5865F2','#57F287','#FEE75C','#EB459E','#ED4245','#7289DA'];
-const pickColor=n=>COLORS[Math.abs([...n].reduce((s,c)=>s+c.charCodeAt(0),0))%COLORS.length];
-const initials=n=>n.trim().split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)||'?';
-const $=id=>document.getElementById(id);
+const COLORS = ['#5865F2','#57F287','#FEE75C','#EB459E','#ED4245','#7289DA'];
+const pickColor = name => COLORS[Math.abs([...name].reduce((s,c)=>s+c.charCodeAt(0),0)) % COLORS.length];
+const initials = name => name.trim().split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) || '?';
 
-// ── room id from URL hash ──
-function getRoomId(){
-  const h=location.hash.slice(1);
-  if(h) return h;
-  const id=Math.random().toString(36).slice(2,8).toUpperCase();
-  location.hash=id;
+let localStream = null;
+let localName = '';
+let micMuted = false;
+let camOff = false;
+let screenSharing = false;
+let screenStream = null;
+let peers = {}; // peerId -> {pc, stream, name, videoEl, tile}
+let socket = null;
+let myId = null;
+let roomId = getRoomId();
+let audioContext = null;
+let analyser = null;
+
+const config = { iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}] };
+
+function getRoomId() {
+  const hash = location.hash.slice(1);
+  if (hash) return hash;
+  const id = Math.random().toString(36).slice(2,8).toUpperCase();
+  location.hash = id;
   return id;
 }
-const ROOM_ID=getRoomId();
-$('roomPill').textContent=ROOM_ID;
 
-// ── state ──
-let localStream=null, myName='';
-let micMuted=false, camOff=false, screenSharing=false, screenStream=null;
-let peer=null;
-let calls={}; // peerId -> {call, name}
-let volume=1;
+async function loadDevices() {
+  try {
+    await navigator.mediaDevices.getUserMedia({audio:true,video:true}).then(s=>s.getTracks().forEach(t=>t.stop()));
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const mics = devices.filter(d=>d.kind==='audioinput');
+    const cams = devices.filter(d=>d.kind==='videoinput');
 
-// ── devices ──
-async function loadDevices(){
-  try{
-    const s=await navigator.mediaDevices.getUserMedia({audio:true,video:true});
-    s.getTracks().forEach(t=>t.stop());
-  }catch(e){}
-  try{
-    const devs=await navigator.mediaDevices.enumerateDevices();
-    const mics=devs.filter(d=>d.kind==='audioinput');
-    const cams=devs.filter(d=>d.kind==='videoinput');
-    for(const sel of [$('micSel'),$('sMic')]){
-      sel.innerHTML=mics.map((d,i)=>`<option value="${d.deviceId}">${d.label||'Микрофон '+(i+1)}</option>`).join('');
+    for (const sel of [document.getElementById('micSelect'), document.getElementById('settingsMic')]) {
+      sel.innerHTML = mics.map((d,i)=>`<option value="${d.deviceId}">${d.label||'Микрофон '+(i+1)}</option>`).join('');
     }
-    for(const sel of [$('camSel'),$('sCam')]){
-      sel.innerHTML=cams.map((d,i)=>`<option value="${d.deviceId}">${d.label||'Камера '+(i+1)}</option>`).join('');
+    for (const sel of [document.getElementById('camSelect'), document.getElementById('settingsCam')]) {
+      sel.innerHTML = cams.map((d,i)=>`<option value="${d.deviceId}">${d.label||'Камера '+(i+1)}</option>`).join('');
     }
-  }catch(e){}
+  } catch(e) {
+    console.warn('Device enum failed', e);
+  }
 }
+
+async function startPreview() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({video:true,audio:false});
+    const v = document.getElementById('previewVideo');
+    v.srcObject = stream;
+    document.getElementById('previewNoVideo').style.display = 'none';
+  } catch(e) {}
+}
+
 loadDevices();
-
-async function startPreview(){
-  try{
-    const s=await navigator.mediaDevices.getUserMedia({video:true,audio:false});
-    $('previewVid').srcObject=s;
-    $('prevEmpty').style.display='none';
-  }catch(e){}
-}
 startPreview();
 
-// ── join ──
-$('joinBtn').onclick=()=>join();
-$('nameIn').onkeydown=e=>{ if(e.key==='Enter') join(); };
+document.getElementById('joinBtn').onclick = async () => {
+  const name = document.getElementById('nameInput').value.trim() || 'Аноним';
+  localName = name;
+  await joinRoom(name);
+};
 
-async function join(){
-  myName=$('nameIn').value.trim()||'Аноним';
-  const micId=$('micSel').value;
-  const camId=$('camSel').value;
-  try{
-    localStream=await navigator.mediaDevices.getUserMedia({
-      audio:micId?{deviceId:{exact:micId}}:true,
-      video:camId?{deviceId:{exact:camId}}:true
-    });
-  }catch(e){
-    try{ localStream=await navigator.mediaDevices.getUserMedia({audio:true}); }
-    catch(e2){ localStream=new MediaStream(); }
+document.getElementById('nameInput').onkeydown = e => { if(e.key==='Enter') document.getElementById('joinBtn').click(); };
+
+async function joinRoom(name) {
+  const micId = document.getElementById('micSelect').value;
+  const camId = document.getElementById('camSelect').value;
+  const constraints = {
+    audio: micId ? {deviceId:{exact:micId}} : true,
+    video: camId ? {deviceId:{exact:camId}} : true
+  };
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia(constraints);
+  } catch(e) {
+    try { localStream = await navigator.mediaDevices.getUserMedia({audio:true}); } catch(e2) {
+      localStream = new MediaStream();
+    }
   }
-  $('joinOverlay').style.display='none';
-  $('statusBar').style.display='flex';
-  $('emptyMsg').remove();
-  addLocalTile();
+
+  document.getElementById('joinOverlay').style.display = 'none';
+  document.getElementById('statusBar').style.display = 'flex';
+  document.getElementById('emptyRoom').remove();
+
+  renderLocalTile();
   setupVAD();
-  connectPeer();
+  connectSignaling(name);
 }
 
-// ── local tile ──
-function addLocalTile(){
-  const t=makeTile('local',myName,localStream,true);
-  $('grid').appendChild(t);
-  refreshSidebar();
+function renderLocalTile() {
+  const tile = makeTile('local', localName, localStream, true);
+  document.getElementById('videoGrid').appendChild(tile);
+  updateSidebar();
 }
 
-function makeTile(id,name,stream,local=false){
-  const tile=document.createElement('div');
-  tile.className='tile';
-  tile.id='tile-'+id;
+function makeTile(id, name, stream, local=false) {
+  const tile = document.createElement('div');
+  tile.className = 'video-tile';
+  tile.id = 'tile-'+id;
 
-  const vid=document.createElement('video');
-  vid.autoplay=true; vid.playsInline=true;
-  if(local) vid.muted=true;
-  vid.srcObject=stream;
-  vid.volume=volume;
-  tile.appendChild(vid);
+  const video = document.createElement('video');
+  video.autoplay = true;
+  video.playsInline = true;
+  if(local) video.muted = true;
+  video.srcObject = stream;
+  tile.appendChild(video);
 
-  const col=pickColor(name);
-  const ov=document.createElement('div');
-  ov.className='tile-overlay';
-  ov.id='ov-'+id;
-  const av=document.createElement('div');
-  av.className='big-av';
-  av.style.cssText=`background:${col}22;color:${col}`;
-  av.textContent=initials(name);
-  const bars=document.createElement('div');
-  bars.className='bars'; bars.id='bars-'+id;
-  for(let i=0;i<4;i++){const b=document.createElement('div');b.className='bar';bars.appendChild(b);}
-  ov.appendChild(av); ov.appendChild(bars);
-  tile.appendChild(ov);
+  const overlay = document.createElement('div');
+  overlay.className = 'no-video-overlay';
+  overlay.id = 'overlay-'+id;
 
-  const lbl=document.createElement('div');
-  lbl.className='tile-label';
-  lbl.textContent=local?'Вы ('+name+')':name;
-  tile.appendChild(lbl);
+  const av = document.createElement('div');
+  av.className = 'big-avatar';
+  const col = pickColor(name);
+  av.style.background = col+'33';
+  av.style.color = col;
+  av.textContent = initials(name);
 
-  syncVideoOverlay(id,stream,vid,ov);
+  const bars = document.createElement('div');
+  bars.className = 'wave-bars';
+  bars.id = 'bars-'+id;
+  for(let i=0;i<4;i++){
+    const b=document.createElement('div');
+    b.className='bar';
+    bars.appendChild(b);
+  }
+
+  overlay.appendChild(av);
+  overlay.appendChild(bars);
+  tile.appendChild(overlay);
+
+  const label = document.createElement('div');
+  label.className = 'tile-label';
+  label.id = 'label-'+id;
+  label.innerHTML = `<span>${local?'Вы ('+name+')':name}</span>`;
+  tile.appendChild(label);
+
+  checkVideoTrack(id, stream, overlay, video);
   return tile;
 }
 
-function syncVideoOverlay(id,stream,vid,ov){
-  const hasV=stream&&stream.getVideoTracks().some(t=>t.enabled&&t.readyState==='live');
-  ov.classList.toggle('hidden',hasV);
+function checkVideoTrack(id, stream, overlay, video) {
+  const hasVideo = stream && stream.getVideoTracks().length > 0 && stream.getVideoTracks()[0].enabled;
+  overlay.style.display = hasVideo ? 'none' : 'flex';
+  video.style.display = hasVideo ? 'block' : 'none';
 }
 
-// ── VAD ──
-let vadInterval=null;
-function setupVAD(){
-  try{
-    const ctx=new(window.AudioContext||window.webkitAudioContext)();
-    const analyser=ctx.createAnalyser();
-    analyser.fftSize=512;
-    ctx.createMediaStreamSource(localStream).connect(analyser);
-    const data=new Uint8Array(analyser.frequencyBinCount);
-    let wasSpeaking=false;
-    vadInterval=setInterval(()=>{
+function setupVAD() {
+  try {
+    audioContext = new (window.AudioContext||window.webkitAudioContext)();
+    analyser = audioContext.createAnalyser();
+    analyser.fftSize = 512;
+    const src = audioContext.createMediaStreamSource(localStream);
+    src.connect(analyser);
+
+    const data = new Uint8Array(analyser.frequencyBinCount);
+    let speaking = false;
+
+    setInterval(()=>{
       analyser.getByteFrequencyData(data);
-      const vol=data.reduce((a,b)=>a+b,0)/data.length;
-      const now=vol>14&&!micMuted;
-      if(now!==wasSpeaking){
-        wasSpeaking=now;
-        setSpeaking('local',now);
-        // broadcast to peers via PeerJS data channel — simple: re-call not needed, use existing
-        Object.values(calls).forEach(c=>{ try{ c.call.peerConnection?.getDataChannels?.(); }catch(e){} });
+      const vol = data.reduce((a,b)=>a+b,0)/data.length;
+      const now = vol > 15 && !micMuted;
+      if(now !== speaking) {
+        speaking = now;
+        const tile = document.getElementById('tile-local');
+        const bars = document.getElementById('bars-local');
+        if(tile) tile.classList.toggle('speaking', speaking);
+        if(bars) bars.classList.toggle('active', speaking);
+        if(socket) socket.send(JSON.stringify({type:'speaking',speaking}));
       }
-    },100);
-  }catch(e){}
+    }, 100);
+  } catch(e) {}
 }
 
-function setSpeaking(id,on){
-  const t=$('tile-'+id);
-  const b=$('bars-'+id);
-  const s=$('sav-'+id);
-  if(t) t.classList.toggle('speaking',on);
-  if(b) b.classList.toggle('on',on);
-  if(s) s.classList.toggle('speaking',on);
+function connectSignaling(name) {
+  const wsProto = location.protocol === 'https:' ? 'wss' : 'ws';
+  const wsUrl = `${wsProto}://${location.host}/ws?room=${roomId}&name=${encodeURIComponent(name)}`;
+
+  try {
+    socket = new WebSocket(wsUrl);
+    socket.onopen = () => {
+      document.getElementById('connectionState').textContent = '· P2P';
+    };
+    socket.onmessage = async e => {
+      const msg = JSON.parse(e.data);
+      await handleSignal(msg);
+    };
+    socket.onerror = () => {
+      document.getElementById('connectionState').textContent = '· Демо режим';
+      simulatePeers();
+    };
+  } catch(e) {
+    document.getElementById('connectionState').textContent = '· Демо режим';
+    simulatePeers();
+  }
 }
 
-// ── PeerJS ──
-function connectPeer(){
-  // Use PeerJS public cloud server with room-namespaced ID
-  const myPeerId=ROOM_ID+'__'+Math.random().toString(36).slice(2,6);
-  peer=new Peer(myPeerId,{debug:0});
-
-  peer.on('open',id=>{
-    $('connLbl').textContent='ID: '+id.split('__')[1];
-    announceToRoom();
-  });
-
-  peer.on('call',call=>{
-    const remoteName=call.metadata?.name||'Участник';
-    call.answer(localStream);
-    handleCall(call,remoteName);
-  });
-
-  peer.on('error',e=>{
-    $('connLbl').textContent='⚠ '+e.type;
-  });
-}
-
-// ── Room discovery via localStorage (same-origin trick) ──
-// Peers write their peerId to localStorage under the room key.
-// Others poll and dial new entries.
-
-function announceToRoom(){
-  const key='vr_room_'+ROOM_ID;
-  const entry={id:peer.id,name:myName,ts:Date.now()};
-  // Read existing peers and call them
-  let existing=[];
-  try{ existing=JSON.parse(localStorage.getItem(key)||'[]'); }catch(e){}
-  // Clean stale (older than 5 min)
-  existing=existing.filter(e=>Date.now()-e.ts<300000);
-  // Call everyone already there
-  existing.forEach(e=>{ if(e.id!==peer.id) callPeer(e.id,e.name); });
-  // Add self
-  existing.push(entry);
-  localStorage.setItem(key,JSON.stringify(existing));
-  // Keep refreshing timestamp so others know we're alive
-  setInterval(()=>{
-    let arr=[];
-    try{ arr=JSON.parse(localStorage.getItem(key)||'[]'); }catch(e){}
-    arr=arr.filter(e=>Date.now()-e.ts<300000);
-    const idx=arr.findIndex(e=>e.id===peer.id);
-    if(idx>=0) arr[idx].ts=Date.now(); else arr.push({id:peer.id,name:myName,ts:Date.now()});
-    localStorage.setItem(key,JSON.stringify(arr));
-    // Check for new peers
-    arr.forEach(e=>{ if(e.id!==peer.id&&!calls[e.id]) callPeer(e.id,e.name); });
-  },3000);
-  // Remove self on unload
-  window.addEventListener('beforeunload',()=>{
-    let arr=[];
-    try{ arr=JSON.parse(localStorage.getItem(key)||'[]'); }catch(e){}
-    localStorage.setItem(key,JSON.stringify(arr.filter(e=>e.id!==peer.id)));
-  });
-}
-
-function callPeer(peerId,peerName){
-  if(calls[peerId]) return;
-  const call=peer.call(peerId,localStream,{metadata:{name:myName}});
-  if(!call) return;
-  calls[peerId]={call,name:peerName};
-  handleCall(call,peerName);
-}
-
-function handleCall(call,name){
-  const pid=call.peer;
-  calls[pid]={call,name};
-  call.on('stream',remoteStream=>{
-    if(!$('tile-'+pid)){
-      const t=makeTile(pid,name,remoteStream);
-      $('grid').appendChild(t);
-      // set volume
-      t.querySelector('video').volume=volume;
-    } else {
-      const v=$('tile-'+pid).querySelector('video');
-      v.srcObject=remoteStream;
-      v.volume=volume;
+async function handleSignal(msg) {
+  const {type, from, name, sdp, candidate, speaking} = msg;
+  if(type === 'joined') {
+    myId = msg.id;
+    if(msg.peers) {
+      for(const p of msg.peers) createOffer(p.id, p.name);
     }
-    refreshSidebar();
-  });
-  call.on('close',()=>removePeer(pid));
-  call.on('error',()=>removePeer(pid));
+  } else if(type === 'offer') {
+    await createAnswer(from, name, sdp);
+  } else if(type === 'answer') {
+    if(peers[from]) await peers[from].pc.setRemoteDescription(new RTCSessionDescription(sdp));
+  } else if(type === 'ice') {
+    if(peers[from] && candidate) peers[from].pc.addIceCandidate(new RTCIceCandidate(candidate));
+  } else if(type === 'speaking') {
+    const tile = document.getElementById('tile-'+from);
+    const bars = document.getElementById('bars-'+from);
+    if(tile) tile.classList.toggle('speaking', speaking);
+    if(bars) bars.classList.toggle('active', speaking);
+  } else if(type === 'left') {
+    removePeer(from);
+  }
 }
 
-function removePeer(pid){
-  if(calls[pid]){ try{calls[pid].call.close();}catch(e){} delete calls[pid]; }
-  const t=$('tile-'+pid);
-  if(t) t.remove();
-  refreshSidebar();
+function createPC(peerId, peerName) {
+  const pc = new RTCPeerConnection(config);
+  const remoteStream = new MediaStream();
+  peers[peerId] = {pc, stream: remoteStream, name: peerName};
+
+  localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+
+  pc.ontrack = e => {
+    remoteStream.addTrack(e.track);
+    updatePeerTile(peerId, peerName, remoteStream);
+  };
+
+  pc.onicecandidate = e => {
+    if(e.candidate && socket?.readyState===1) {
+      socket.send(JSON.stringify({type:'ice', to:peerId, candidate:e.candidate}));
+    }
+  };
+
+  pc.onconnectionstatechange = () => updateSidebar();
+  return pc;
 }
 
-// ── sidebar ──
-function refreshSidebar(){
-  const c=$('sidePeers');
-  c.innerHTML='';
-  const all=[{id:'local',name:myName},...Object.entries(calls).map(([id,v])=>({id,name:v.name}))];
-  all.forEach(p=>{
-    const col=pickColor(p.name);
-    const div=document.createElement('div');
-    div.className='side-peer';
-    div.innerHTML=`<div class="s-av" id="sav-${p.id}" style="background:${col}22;color:${col}">${initials(p.name)}</div><span>${p.id==='local'?'Вы ('+p.name+')':p.name}</span>`;
-    c.appendChild(div);
-  });
-  const n=all.length;
-  $('statusTxt').textContent=n+' участник'+(n===1?'':'ов')+' в канале';
+async function createOffer(peerId, peerName) {
+  const pc = createPC(peerId, peerName);
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+  socket?.send(JSON.stringify({type:'offer', to:peerId, name:localName, sdp:offer}));
 }
 
-// ── mic/cam/screen/leave ──
-$('micBtn').onclick=()=>{
-  micMuted=!micMuted;
-  localStream.getAudioTracks().forEach(t=>t.enabled=!micMuted);
-  $('micBtn').className='cb '+(micMuted?'off':'def');
-  $('micSvg').innerHTML=micMuted
-    ?'<path d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17c0-.06.02-.11.02-.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3 .22 0 .44-.03.65-.08l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z"/>'
-    :'<path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/>';
-  $('micBtn').querySelector('.tip').textContent=micMuted?'Включить микрофон':'Выключить микрофон';
-};
+async function createAnswer(peerId, peerName, sdp) {
+  const pc = createPC(peerId, peerName);
+  await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+  const answer = await pc.createAnswer();
+  await pc.setLocalDescription(answer);
+  socket?.send(JSON.stringify({type:'answer', to:peerId, sdp:answer}));
+}
 
-$('camBtn').onclick=()=>{
-  camOff=!camOff;
-  localStream.getVideoTracks().forEach(t=>t.enabled=!camOff);
-  $('camBtn').className='cb '+(camOff?'off':'def');
-  $('camSvg').innerHTML=camOff
-    ?'<path d="M21 6.5l-4-4-9.5 9.5-2 4 4-2L21 6.5zM3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/>'
-    :'<path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>';
-  $('camBtn').querySelector('.tip').textContent=camOff?'Включить камеру':'Выключить камеру';
-  const ov=$('ov-local'), v=document.querySelector('#tile-local video');
-  if(ov) ov.classList.toggle('hidden',!camOff);
-  if(v) v.style.display=camOff?'none':'block';
-};
-
-$('screenBtn').onclick=async()=>{
-  if(screenSharing){
-    screenStream.getTracks().forEach(t=>t.stop());
-    screenStream=null; screenSharing=false;
-    $('screenBtn').className='cb def';
-    // restore video track in all calls
-    const vt=localStream.getVideoTracks()[0];
-    Object.values(calls).forEach(({call})=>{
-      const pc=call.peerConnection;
-      if(pc&&vt){ const s=pc.getSenders().find(s=>s.track?.kind==='video'); if(s) s.replaceTrack(vt); }
-    });
-    const v=document.querySelector('#tile-local video');
-    if(v) v.srcObject=localStream;
+function updatePeerTile(peerId, peerName, stream) {
+  let tile = document.getElementById('tile-'+peerId);
+  if(!tile) {
+    tile = makeTile(peerId, peerName, stream);
+    document.getElementById('videoGrid').appendChild(tile);
+    updateSidebar();
   } else {
-    try{
-      screenStream=await navigator.mediaDevices.getDisplayMedia({video:true});
-      screenSharing=true;
-      $('screenBtn').className='cb on';
-      const st=screenStream.getVideoTracks()[0];
-      Object.values(calls).forEach(({call})=>{
-        const pc=call.peerConnection;
-        if(pc){ const s=pc.getSenders().find(s=>s.track?.kind==='video'); if(s) s.replaceTrack(st); }
-      });
-      const v=document.querySelector('#tile-local video');
-      if(v) v.srcObject=screenStream;
-      st.onended=()=>$('screenBtn').click();
-    }catch(e){}
+    const v = tile.querySelector('video');
+    v.srcObject = stream;
+    checkVideoTrack(peerId, stream, document.getElementById('overlay-'+peerId), v);
+  }
+}
+
+function removePeer(peerId) {
+  if(peers[peerId]) {
+    peers[peerId].pc.close();
+    delete peers[peerId];
+  }
+  const tile = document.getElementById('tile-'+peerId);
+  if(tile) tile.remove();
+  updateSidebar();
+}
+
+function updateSidebar() {
+  const container = document.getElementById('sideParticipants');
+  container.innerHTML = '';
+
+  const all = [{id:'local', name:'Вы ('+localName+')', col: pickColor(localName)}];
+  for(const [id, p] of Object.entries(peers)) all.push({id, name: p.name, col: pickColor(p.name)});
+
+  for(const p of all) {
+    const div = document.createElement('div');
+    div.className = 'participant';
+
+    const av = document.createElement('div');
+    av.className = 'avatar';
+    av.style.background = p.col+'33';
+    av.style.color = p.col;
+    av.textContent = initials(p.name);
+
+    div.appendChild(av);
+    const span = document.createElement('span');
+    span.className = 'participant-name';
+    span.textContent = p.name;
+    div.appendChild(span);
+
+    container.appendChild(div);
+  }
+
+  const count = all.length;
+  document.getElementById('statusText').textContent = `${count} участник${count===1?'':'ов'} в канале`;
+}
+
+function simulatePeers() {
+  const demoNames = ['Алекса','Дима','Соня'];
+  demoNames.forEach((name, i) => {
+    setTimeout(() => {
+      const fakeStream = new MediaStream();
+      const peerId = 'demo-'+i;
+      peers[peerId] = {stream: fakeStream, name, pc: {close:()=>{}}};
+      updatePeerTile(peerId, name, fakeStream);
+    }, (i+1)*1200);
+  });
+}
+
+document.getElementById('micBtn').onclick = () => {
+  micMuted = !micMuted;
+  localStream.getAudioTracks().forEach(t => t.enabled = !micMuted);
+  const btn = document.getElementById('micBtn');
+  const icon = document.getElementById('micIcon');
+  btn.className = 'ctrl-btn ' + (micMuted ? 'muted-state' : 'default');
+  if(micMuted) {
+    icon.innerHTML = '<path d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17c0-.06.02-.11.02-.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3 .22 0 .44-.03.65-.08l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z"/>';
+    btn.querySelector('.tooltip').textContent = 'Включить микрофон';
+  } else {
+    icon.innerHTML = '<path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/>';
+    btn.querySelector('.tooltip').textContent = 'Выключить микрофон';
   }
 };
 
-$('leaveBtn').onclick=()=>{
-  // remove from room list
-  try{
-    const key='vr_room_'+ROOM_ID;
-    let arr=JSON.parse(localStorage.getItem(key)||'[]');
-    localStorage.setItem(key,JSON.stringify(arr.filter(e=>e.id!==peer?.id)));
-  }catch(e){}
-  Object.values(calls).forEach(c=>{ try{c.call.close();}catch(e){} });
-  peer?.destroy();
+document.getElementById('camBtn').onclick = () => {
+  camOff = !camOff;
+  localStream.getVideoTracks().forEach(t => t.enabled = !camOff);
+  const btn = document.getElementById('camBtn');
+  const icon = document.getElementById('camIcon');
+  btn.className = 'ctrl-btn ' + (camOff ? 'muted-state' : 'default');
+  if(camOff) {
+    icon.innerHTML = '<path d="M21 6.5l-4-4-9.5 9.5-2 4 4-2L21 6.5zM3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/>';
+    btn.querySelector('.tooltip').textContent = 'Включить камеру';
+    const ov = document.getElementById('overlay-local');
+    const v = document.querySelector('#tile-local video');
+    if(ov) { ov.style.display='flex'; }
+    if(v) { v.style.display='none'; }
+  } else {
+    icon.innerHTML = '<path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>';
+    btn.querySelector('.tooltip').textContent = 'Выключить камеру';
+    const ov = document.getElementById('overlay-local');
+    const v = document.querySelector('#tile-local video');
+    if(ov) { ov.style.display='none'; }
+    if(v) { v.style.display='block'; }
+  }
+};
+
+document.getElementById('screenBtn').onclick = async () => {
+  if(screenSharing) {
+    screenStream.getTracks().forEach(t=>t.stop());
+    screenStream = null;
+    screenSharing = false;
+    document.getElementById('screenBtn').className = 'ctrl-btn default';
+    for(const p of Object.values(peers)) {
+      const sender = p.pc.getSenders?.().find(s=>s.track?.kind==='video');
+      if(sender) {
+        const vt = localStream.getVideoTracks()[0];
+        if(vt) sender.replaceTrack(vt);
+      }
+    }
+    const v = document.querySelector('#tile-local video');
+    if(v) v.srcObject = localStream;
+  } else {
+    try {
+      screenStream = await navigator.mediaDevices.getDisplayMedia({video:true});
+      screenSharing = true;
+      document.getElementById('screenBtn').className = 'ctrl-btn active-state';
+      const screenTrack = screenStream.getVideoTracks()[0];
+      for(const p of Object.values(peers)) {
+        const sender = p.pc.getSenders?.().find(s=>s.track?.kind==='video');
+        if(sender) sender.replaceTrack(screenTrack);
+      }
+      const v = document.querySelector('#tile-local video');
+      if(v) v.srcObject = screenStream;
+      screenTrack.onended = () => document.getElementById('screenBtn').click();
+    } catch(e) {}
+  }
+};
+
+document.getElementById('leaveBtn').onclick = () => {
+  if(socket) socket.close();
+  for(const p of Object.values(peers)) p.pc.close?.();
+  peers = {};
   localStream?.getTracks().forEach(t=>t.stop());
   location.reload();
 };
 
-// ── settings ──
-$('settingsBtn').onclick=()=>$('settingsPanel').classList.add('open');
-$('sClose').onclick=$('sCancel').onclick=()=>$('settingsPanel').classList.remove('open');
-$('sApply').onclick=async()=>{
-  const micId=$('sMic').value, camId=$('sCam').value;
-  try{
-    const ns=await navigator.mediaDevices.getUserMedia({
-      audio:micId?{deviceId:{exact:micId}}:true,
-      video:camId?{deviceId:{exact:camId}}:true
+document.getElementById('settingsBtn').onclick = () => {
+  document.getElementById('settingsPanel').classList.add('open');
+};
+document.getElementById('settingsClose').onclick = () => {
+  document.getElementById('settingsPanel').classList.remove('open');
+};
+document.getElementById('settingsCancel').onclick = () => {
+  document.getElementById('settingsPanel').classList.remove('open');
+};
+document.getElementById('settingsSave').onclick = async () => {
+  const micId = document.getElementById('settingsMic').value;
+  const camId = document.getElementById('settingsCam').value;
+  try {
+    const newStream = await navigator.mediaDevices.getUserMedia({
+      audio: micId ? {deviceId:{exact:micId}} : true,
+      video: camId ? {deviceId:{exact:camId}} : true
     });
-    // replace tracks in all peer connections
-    ns.getTracks().forEach(nt=>{
-      Object.values(calls).forEach(({call})=>{
-        const pc=call.peerConnection;
-        if(pc){ const s=pc.getSenders().find(s=>s.track?.kind===nt.kind); if(s) s.replaceTrack(nt); }
-      });
-      localStream.getTracks().filter(t=>t.kind===nt.kind).forEach(t=>{ t.stop(); localStream.removeTrack(t); });
-      localStream.addTrack(nt);
+    newStream.getTracks().forEach(t => {
+      localStream.addTrack(t);
+      for(const p of Object.values(peers)) {
+        const sender = p.pc.getSenders?.().find(s=>s.track?.kind===t.kind);
+        if(sender) sender.replaceTrack(t);
+      }
     });
-    const v=document.querySelector('#tile-local video');
-    if(v) v.srcObject=localStream;
-  }catch(e){}
-  $('settingsPanel').classList.remove('open');
+    localStream.getTracks().filter(t=>!newStream.getTracks().includes(t)).forEach(t=>t.stop());
+    localStream = newStream;
+  } catch(e) {}
+  document.getElementById('settingsPanel').classList.remove('open');
 };
 
-$('volR').oninput=()=>{
-  volume=$('volR').value/100;
-  $('volV').textContent=$('volR').value+'%';
-  document.querySelectorAll('.tile:not(#tile-local) video').forEach(v=>v.volume=volume);
+const volSlider = document.getElementById('volSlider');
+const volVal = document.getElementById('volVal');
+volSlider.oninput = () => {
+  volVal.textContent = volSlider.value + '%';
+  document.querySelectorAll('.video-tile:not(#tile-local) video').forEach(v => {
+    v.volume = volSlider.value / 100;
+  });
 };
 
-// ── copy link ──
-$('copyBtn').onclick=()=>{
-  navigator.clipboard.writeText(location.href).then(()=>{
-    const t=$('copiedToast');
-    t.classList.add('show');
-    setTimeout(()=>t.classList.remove('show'),2000);
+document.getElementById('roomIdBtn').onclick = () => {
+  const url = location.href;
+  navigator.clipboard.writeText(url).then(()=>{
+    const msg = document.getElementById('copiedMsg');
+    msg.classList.add('show');
+    setTimeout(()=>msg.classList.remove('show'), 2000);
   });
 };
 </script>
