@@ -454,6 +454,13 @@ function makeTile(id,name,stream,local){
   const v=document.createElement('video');
   v.autoplay=true;v.playsInline=true;if(local)v.muted=true;
   v.srcObject=stream;tile.appendChild(v);
+  // Некоторые браузеры блокируют автовоспроизведение звука без явного клика —
+  // пытаемся запустить воспроизведение и, если не получилось, ждём любой клик на странице
+  const tryPlay=()=>v.play().catch(()=>{
+    const retry=()=>{v.play().catch(()=>{});document.removeEventListener('click',retry);};
+    document.addEventListener('click',retry,{once:true});
+  });
+  tryPlay();
   const ov=document.createElement('div');ov.className='novid';ov.id='ov-'+id;
   const col=pickCol(name);
   const av=document.createElement('div');av.className='bav';av.id='bav-'+id;
