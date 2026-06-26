@@ -113,7 +113,67 @@ main{flex:1;display:flex;overflow:hidden;min-height:0}
 .jbtn:active{transform:scale(.99)}
 .jbtn:disabled{opacity:.5;cursor:not-allowed}
 
-@media(max-width:600px){.sidebar{display:none}.jcard{width:92vw;padding:28px 20px}.vgrid{grid-template-columns:1fr}}
+/* AVATAR PICKER (join screen) */
+.avrow{display:flex;gap:10px;width:100%;margin-bottom:14px;flex-wrap:wrap;justify-content:center}
+.avopt{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;border:2px solid transparent;transition:border-color .15s,transform .1s;flex-shrink:0;position:relative}
+.avopt:hover{transform:scale(1.08)}
+.avopt.sel::after{content:'';position:absolute;inset:-3px;border-radius:50%;border:2px solid var(--accent)}
+
+/* SETTINGS / DEVICE POPOVER */
+.cb-wrap{position:relative;display:inline-flex}
+.cb-arrow{position:absolute;bottom:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
+.cb-arrow svg{width:8px;height:8px;fill:var(--muted);pointer-events:none}
+.popover{position:absolute;bottom:60px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;width:260px;box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:50;display:none}
+.popover.show{display:block}
+.pop-title{font-size:11px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+.pop-row{margin-bottom:14px}
+.pop-row:last-child{margin-bottom:0}
+.pop-label{font-size:12px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:6px;justify-content:space-between}
+.slider-row{display:flex;align-items:center;gap:8px}
+.slider-row svg{width:16px;height:16px;fill:var(--muted);flex-shrink:0}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:2px;background:var(--border);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);cursor:pointer;transition:transform .1s}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15)}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--accent);border:none;cursor:pointer}
+.vol-val{font-size:11px;color:var(--dim);min-width:30px;text-align:right;flex-shrink:0}
+
+/* SCREEN SHARE ZOOM OVERLAY */
+.vtile.shareable{cursor:zoom-in}
+.zoom-hint{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.65);color:#fff;font-size:10px;font-weight:500;padding:3px 7px;border-radius:4px;display:flex;align-items:center;gap:4px;opacity:0;transition:opacity .15s;pointer-events:none;z-index:4}
+.vtile.shareable:hover .zoom-hint{opacity:1}
+.zoom-hint svg{width:11px;height:11px;fill:#fff}
+.zoom-overlay{position:fixed;inset:0;background:rgba(5,5,8,.92);z-index:200;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);cursor:zoom-out;padding:40px}
+.zoom-overlay.show{display:flex}
+.zoom-overlay video{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.zoom-close{position:absolute;top:20px;right:24px;width:40px;height:40px;border-radius:50%;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
+.zoom-close svg{width:18px;height:18px;fill:var(--text)}
+.zoom-cap{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);color:var(--muted);font-size:12px;background:rgba(0,0,0,.5);padding:5px 12px;border-radius:6px}
+
+/* TEXT CHAT PANEL */
+.chat-panel{position:fixed;top:0;right:0;height:100%;width:320px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .22s ease;z-index:80}
+.chat-panel.open{transform:translateX(0)}
+.chat-head{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-shrink:0}
+.chat-head h3{font-size:14px;font-weight:600;flex:1}
+.chat-close{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:transparent;border:none}
+.chat-close:hover{background:var(--card)}
+.chat-close svg{width:16px;height:16px;fill:var(--muted)}
+.chat-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.chat-empty{color:var(--dim);font-size:12px;text-align:center;margin-top:30px;line-height:1.6}
+.cmsg{max-width:88%;display:flex;flex-direction:column;gap:2px}
+.cmsg.me{align-self:flex-end;align-items:flex-end}
+.cmsg .cname{font-size:11px;color:var(--dim);padding:0 4px}
+.cmsg .cbubble{background:var(--card);border-radius:10px;padding:7px 11px;font-size:13px;line-height:1.4;word-break:break-word}
+.cmsg.me .cbubble{background:var(--accent);color:#fff}
+.chat-foot{padding:12px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0}
+.chat-input{flex:1;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:9px 12px;outline:none;font-family:inherit;transition:border-color .15s}
+.chat-input:focus{border-color:var(--accent)}
+.chat-send{width:38px;height:38px;border-radius:8px;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.chat-send:hover{background:var(--accent-h)}
+.chat-send svg{width:16px;height:16px;fill:#fff}
+.chat-badge{position:absolute;top:3px;right:3px;width:8px;height:8px;border-radius:50%;background:var(--red);display:none;pointer-events:none}
+.chat-badge.show{display:block}
+
+@media(max-width:600px){.sidebar{display:none}.jcard{width:92vw;padding:28px 20px}.vgrid{grid-template-columns:1fr}.chat-panel{width:100%}}
 </style>
 </head>
 <body>
@@ -132,13 +192,40 @@ main{flex:1;display:flex;overflow:hidden;min-height:0}
       </div>
     </div>
     <input class="ninput" id="nameIn" type="text" placeholder="Ваше имя" maxlength="24" autocomplete="off">
+    <div class="avrow" id="avRow"></div>
     <div class="drow">
       <select class="dsel" id="micSel"><option>🎤 Микрофон...</option></select>
       <select class="dsel" id="camSel"><option>📷 Камера...</option></select>
     </div>
+    <div class="drow">
+      <select class="dsel" id="spkSel"><option>🎧 Наушники...</option></select>
+    </div>
     <button class="jbtn" id="joinBtn">Подключиться</button>
   </div>
 </div>
+
+<!-- ZOOM OVERLAY (screen share enlarge) -->
+<div class="zoom-overlay" id="zoomOv">
+  <div class="zoom-close" id="zoomClose"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></div>
+  <video id="zoomVid" autoplay playsinline></video>
+  <div class="zoom-cap">Нажмите в любом месте, чтобы свернуть</div>
+</div>
+
+<!-- TEXT CHAT PANEL -->
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-head">
+    <h3>Чат</h3>
+    <button class="chat-close" id="chatCloseBtn"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+  </div>
+  <div class="chat-body" id="chatBody">
+    <div class="chat-empty" id="chatEmpty">Сообщений пока нет.<br>Напишите первым!</div>
+  </div>
+  <div class="chat-foot">
+    <input class="chat-input" id="chatInput" type="text" placeholder="Написать сообщение..." maxlength="500" autocomplete="off">
+    <button class="chat-send" id="chatSendBtn"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+  </div>
+</div>
+
 
 <!-- HEADER -->
 <header>
@@ -178,18 +265,66 @@ main{flex:1;display:flex;overflow:hidden;min-height:0}
       </div>
     </div>
     <div class="cbar">
-      <button class="cb off" id="micBtn">
-        <svg id="micI" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15A1 1 0 009.1 12c-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V21c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.09-.6-.4-1.14-1.01-1.14z"/></svg>
-        <span class="tip" id="micTip">Выкл. микрофон</span>
-      </button>
+      <div class="cb-wrap">
+        <button class="cb off" id="micBtn">
+          <svg id="micI" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15A1 1 0 009.1 12c-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V21c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.09-.6-.4-1.14-1.01-1.14z"/></svg>
+          <span class="tip" id="micTip">Выкл. микрофон</span>
+        </button>
+        <div class="cb-arrow" id="micArrow"><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>
+        <div class="popover" id="micPop">
+          <div class="pop-title">Микрофон</div>
+          <div class="pop-row">
+            <div class="pop-label">Устройство</div>
+            <select class="dsel" id="micSelLive" style="width:100%"></select>
+          </div>
+          <div class="pop-row">
+            <div class="pop-label"><span>Громкость микрофона</span><span class="vol-val" id="micVolVal">100%</span></div>
+            <div class="slider-row">
+              <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/></svg>
+              <input type="range" id="micVol" min="0" max="100" value="100">
+            </div>
+          </div>
+        </div>
+      </div>
+
       <button class="cb off" id="camBtn">
         <svg id="camI" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
         <span class="tip" id="camTip">Выкл. камеру</span>
       </button>
+
       <button class="cb off" id="scrBtn">
         <svg viewBox="0 0 24 24"><path d="M21 3H3c-1.11 0-2 .89-2 2v12c0 1.1.89 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.11-.9-2-2-2zm0 14H3V5h18v12z"/></svg>
         <span class="tip">Демонстрация экрана</span>
       </button>
+
+      <div class="cb-wrap">
+        <button class="cb off" id="spkBtn">
+          <svg id="spkI" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1-3.29-2.5-4.03v8.05c1.5-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+          <span class="tip">Звук и наушники</span>
+        </button>
+        <div class="cb-arrow" id="spkArrow"><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>
+        <div class="popover" id="spkPop">
+          <div class="pop-title">Наушники / Динамики</div>
+          <div class="pop-row">
+            <div class="pop-label">Устройство вывода</div>
+            <select class="dsel" id="spkSelLive" style="width:100%"></select>
+          </div>
+          <div class="pop-row">
+            <div class="pop-label"><span>Громкость звука</span><span class="vol-val" id="spkVolVal">100%</span></div>
+            <div class="slider-row">
+              <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1-3.29-2.5-4.03v8.05c1.5-.73 2.5-2.25 2.5-4.02z"/></svg>
+              <input type="range" id="spkVol" min="0" max="100" value="100">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="cb off" id="chatBtn">
+        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
+        <span class="chat-badge" id="chatBadge"></span>
+        <span class="tip">Текстовый чат</span>
+      </button>
+
       <button class="cb danger" id="lvBtn">
         <svg viewBox="0 0 24 24"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
         <span class="tip">Покинуть</span>
@@ -219,8 +354,29 @@ document.getElementById('copyBtn').onclick=()=>{
 // ── state ─────────────────────────────────────────────────
 let localStream=null,localName='';
 let micMuted=false,camOff=false,screenSharing=false,screenStream=null;
-const peers={}; // id->{pc,name,stream,micMuted,speaking,dc}
+const peers={}; // id->{pc,name,stream,micMuted,speaking,dc,avatar}
 let ws=null;
+
+// avatars / settings
+const AVATARS=['😀','😎','🤖','🐱','🐼','🦊','🐸','🐵','👻','🦄','🐯','🐧'];
+let myAvatar=AVATARS[0];
+let micVolume=100,spkVolume=100;
+let selectedSpkId='';
+let micGainNode=null,micAudioCtx=null;
+let chatUnread=0;
+
+function buildAvatarRow(){
+  const row=document.getElementById('avRow');
+  row.innerHTML=AVATARS.map((a,i)=>`<div class="avopt${i===0?' sel':''}" data-av="${a}" style="background:${pickCol(a)}33">${a}</div>`).join('');
+  row.querySelectorAll('.avopt').forEach(el=>{
+    el.onclick=()=>{
+      row.querySelectorAll('.avopt').forEach(o=>o.classList.remove('sel'));
+      el.classList.add('sel');
+      myAvatar=el.dataset.av;
+    };
+  });
+}
+buildAvatarRow();
 
 const ICE={iceServers:[
   {urls:'stun:stun.relay.metered.ca:80'},
@@ -237,8 +393,14 @@ async function loadDevices(){
     const devs=await navigator.mediaDevices.enumerateDevices();
     const mics=devs.filter(d=>d.kind==='audioinput');
     const cams=devs.filter(d=>d.kind==='videoinput');
+    const spks=devs.filter(d=>d.kind==='audiooutput');
     document.getElementById('micSel').innerHTML=mics.map((d,i)=>`<option value="${d.deviceId}">${d.label||'Микрофон '+(i+1)}</option>`).join('');
     document.getElementById('camSel').innerHTML=cams.map((d,i)=>`<option value="${d.deviceId}">${d.label||'Камера '+(i+1)}</option>`).join('');
+    if(spks.length){
+      document.getElementById('spkSel').innerHTML=spks.map((d,i)=>`<option value="${d.deviceId}">${d.label||'Наушники/Динамики '+(i+1)}</option>`).join('');
+    }else{
+      document.getElementById('spkSel').innerHTML='<option value="">🎧 По умолчанию</option>';
+    }
   }catch{}
 }
 async function startPreview(){
@@ -257,6 +419,7 @@ async function doJoin(){
   btn.disabled=true;btn.textContent='Получаем доступ...';
   const micId=document.getElementById('micSel').value;
   const camId=document.getElementById('camSel').value;
+  selectedSpkId=document.getElementById('spkSel').value||'';
   try{
     localStream=await navigator.mediaDevices.getUserMedia({
       audio:micId?{deviceId:{exact:micId}}:true,
@@ -272,8 +435,18 @@ async function doJoin(){
   showBar('connecting','Подключение...');
   renderLocalTile();
   setupVAD();
+  syncLiveDeviceSelects();
+  applyMicVolume();
   connectWS(name);
 }
+
+function syncLiveDeviceSelects(){
+  document.getElementById('micSelLive').innerHTML=document.getElementById('micSel').innerHTML;
+  document.getElementById('micSelLive').value=document.getElementById('micSel').value;
+  document.getElementById('spkSelLive').innerHTML=document.getElementById('spkSel').innerHTML;
+  document.getElementById('spkSelLive').value=selectedSpkId;
+}
+
 
 // ── WebSocket signaling ───────────────────────────────────
 function connectWS(name){
@@ -433,6 +606,43 @@ function setupVAD(){
       if(sp!==wasSp){wasSp=sp;setSp('local',sp);broadcastMeta(sp);}
     },120);
   }catch{}
+}
+
+// ── mic volume (gain on outgoing audio track) ──────────────
+let micProcessedTrack=null;
+function applyMicVolume(){
+  if(!localStream)return;
+  const origTrack=localStream.getAudioTracks()[0];
+  if(!origTrack)return;
+  try{
+    if(!micAudioCtx){
+      micAudioCtx=new(window.AudioContext||window.webkitAudioContext)();
+      const src=micAudioCtx.createMediaStreamSource(new MediaStream([origTrack]));
+      micGainNode=micAudioCtx.createGain();
+      const dest=micAudioCtx.createMediaStreamDestination();
+      src.connect(micGainNode).connect(dest);
+      micProcessedTrack=dest.stream.getAudioTracks()[0];
+      // заменяем исходящий трек у всех текущих и будущих соединений
+      for(const p of Object.values(peers)){
+        const s=p.pc.getSenders?.().find(s=>s.track?.kind==='audio');
+        if(s)s.replaceTrack(micProcessedTrack).catch(()=>{});
+      }
+    }
+    micGainNode.gain.value=micVolume/100;
+  }catch{}
+}
+function getOutgoingAudioTrack(){
+  return micProcessedTrack||localStream?.getAudioTracks()[0];
+}
+
+// ── speaker volume / output device ─────────────────────────
+function applySpkSettings(){
+  document.querySelectorAll('#grid video').forEach(v=>{
+    v.volume=spkVolume/100;
+    if(selectedSpkId&&typeof v.setSinkId==='function'){
+      v.setSinkId(selectedSpkId).catch(()=>{});
+    }
+  });
 }
 
 function broadcastMeta(speaking=false){
