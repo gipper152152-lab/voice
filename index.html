@@ -324,6 +324,12 @@
 <script>
 const ROOM_PREFIX = 'voicechat__';
 
+function roomToPeerId(room) {
+  const safe = room.replace(/[^a-z0-9]/g, '') || 'room';
+  const padded = safe.length < 6 ? (safe + 'xxxxxx').slice(0, 6) : safe;
+  return ROOM_PREFIX + padded;
+}
+
 let peer = null;
 let localStream = null;
 let screenStream = null;
@@ -656,8 +662,8 @@ async function joinRoom() {
     return showError('Нет доступа к микрофону. Разреши доступ в браузере.');
   }
 
-  const hostPeerId = ROOM_PREFIX + room;
-  peer = makePeer(ROOM_PREFIX + room + '__' + Date.now());
+  const hostPeerId = roomToPeerId(room);
+  peer = makePeer(roomToPeerId(room) + '__' + Date.now());
 
   // Таймаут на само подключение к PeerJS серверу
   const peerOpenTimeout = setTimeout(() => {
