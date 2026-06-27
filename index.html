@@ -494,8 +494,12 @@ function makePC(peerId,peerName){
     if(e.track.kind==='audio'){
       setupPeerAudio(peerId,e.track);
     }else{
-      // video track — update tile
+      // video track — update tile (may be screen share or camera)
       renderPeerTile(peerId,peerName,peers[peerId].stream);
+      // always refresh the video element's srcObject so new tracks show up
+      const tv=document.querySelector('#tile-'+peerId+' video');
+      if(tv){tv.srcObject=peers[peerId].stream;}
+      refreshOv(peerId,peers[peerId].stream);
       updateSidebar();updateCount();
     }
   };
@@ -549,6 +553,18 @@ function applyMeta(peerId,raw){
   try{
     const d=JSON.parse(raw);
     if(!peers[peerId])return;
+    // screen share state from peer
+    if(d.screenShare!==undefined){
+      const tile=document.getElementById('tile-'+peerId);
+      if(tile){
+        if(d.screenShare){
+          tile.classList.add('screen-tile');
+        } else {
+          tile.classList.remove('screen-tile');
+        }
+      }
+      return;
+    }
     peers[peerId].micMuted=d.micMuted;
     peers[peerId].speaking=d.speaking;
     setSp(peerId,d.speaking);
@@ -647,7 +663,7 @@ function makeTile(id,name,stream,local){
   expBtn.className='expand-btn';
   expBtn.title='Развернуть';
   expBtn.innerHTML='<svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>';
-  expBtn.onclick=()=>openLightbox(id,name,stream);
+  expBtn.onclick=()=>openLightbox(id,name,(id==='local'&&screenSharing&&screenStream)?screenStream:(peers[id]?.stream||stream));
   tile.appendChild(expBtn);
 
   refreshOv(id,stream);
@@ -658,7 +674,9 @@ function refreshOv(id,stream){
   const ov=document.getElementById('ov-'+id);
   const v=document.querySelector('#tile-'+id+' video');
   if(!ov||!v)return;
-  const hasV=stream&&stream.getVideoTracks().some(t=>t.enabled&&t.readyState==='live');
+  // Check the actual srcObject of the video element so screen share is detected correctly
+  const srcObj=v.srcObject;
+  const hasV=srcObj&&srcObj.getVideoTracks().some(t=>t.readyState==='live');
   ov.style.display=hasV?'none':'flex';
 }
 
@@ -693,8 +711,10 @@ let lbSourceStream=null;
 function openLightbox(id,name,stream){
   const lb=document.getElementById('lightbox');
   const lbVid=document.getElementById('lbVideo');
-  lbVid.srcObject=stream;
-  lbVid.muted=true; // audio still via gainNode
+  // Always use the live video element's srcObject so screen share shows correctly
+  const tileVid=document.querySelector('#tile-'+id+' video');
+  lbVid.srcObject=tileVid?tileVid.srcObject:stream;
+  lbVid.muted=true;
   document.getElementById('lbLabel').textContent=name;
   lb.classList.add('open');
 }
@@ -833,58 +853,121 @@ document.getElementById('camBtn').onclick=async()=>{
 };
 
 // Screen share with audio support
+// Uses AudioContext mixer to combine mic + screen audio into one track,
+// then replaceTrack() on the existing audio sender (works in all browsers).
+let screenAudioMixDest=null;
+let screenAudioSource=null;
+let micAudioSource=null;
+
+function getOrCreateMixDest(){
+  if(screenAudioMixDest)return screenAudioMixDest;
+  screenAudioMixDest=getAudioCtx().createMediaStreamDestination();
+  return screenAudioMixDest;
+}
+
 document.getElementById('scrBtn').onclick=async()=>{
   if(screenSharing){
-    screenStream.getTracks().forEach(t=>t.stop());screenStream=null;screenSharing=false;
+    // STOP
+    screenStream.getTracks().forEach(t=>t.stop());
+    screenStream=null; screenSharing=false;
     document.getElementById('scrBtn').className='cb off';
-    // restore camera track (may be null if cam off)
+
+    // restore video
     const vt=camOff?null:localStream.getVideoTracks()[0];
     for(const p of Object.values(peers)){
-      const s=p.pc.getSenders?.().find(s=>s.track?.kind==='video'||s.track===null);
-      if(s)s.replaceTrack(vt||null).catch(()=>{});
+      const vs=p.pc.getSenders?.().find(s=>s.track?.kind==='video'||s.track===null);
+      if(vs)vs.replaceTrack(vt||null).catch(()=>{});
     }
+
+    // disconnect audio mixer
+    if(screenAudioSource){try{screenAudioSource.disconnect();}catch{}screenAudioSource=null;}
+    if(micAudioSource){try{micAudioSource.disconnect();}catch{}micAudioSource=null;}
+    screenAudioMixDest=null;
+
+    // restore plain mic track
+    const micTrack=localStream.getAudioTracks()[0]||null;
+    for(const p of Object.values(peers)){
+      const as=p.pc.getSenders?.().find(s=>s.track?.kind==='audio');
+      if(as&&micTrack)as.replaceTrack(micTrack).catch(()=>{});
+    }
+
+    // notify peers: screen share stopped
+    for(const p of Object.values(peers)){
+      try{if(p.dc&&p.dc.readyState==='open')p.dc.send(JSON.stringify({screenShare:false}));}catch{}
+    }
+
+    // restore local tile
     const lv=document.querySelector('#tile-local video');
     if(lv)lv.srcObject=localStream;
-    // remove screen audio sender
-    for(const p of Object.values(peers)){
-      const audioSenders=p.pc.getSenders?.().filter(s=>s.track?.kind==='audio');
-      if(audioSenders&&audioSenders.length>1){
-        // keep the mic sender (first one), remove extra
-        for(let i=1;i<audioSenders.length;i++)try{p.pc.removeTrack(audioSenders[i]);}catch{}
-      }
-    }
     document.getElementById('tile-local')?.classList.remove('screen-tile');
+    refreshOv('local',localStream);
+
   }else{
+    // START
     try{
-      // Request screen with audio
       screenStream=await navigator.mediaDevices.getDisplayMedia({
         video:{cursor:'always'},
         audio:{echoCancellation:false,noiseSuppression:false,sampleRate:44100}
       });
-      screenSharing=true;
-      document.getElementById('scrBtn').className='cb act';
-      const st=screenStream.getVideoTracks()[0];
+    }catch(e){console.warn('screen share cancelled',e);return;}
 
-      // Replace video track for all peers
-      for(const p of Object.values(peers)){
-        const vs=p.pc.getSenders?.().find(s=>s.track?.kind==='video'||s.track===null);
-        if(vs)vs.replaceTrack(st).catch(()=>{});
+    screenSharing=true;
+    document.getElementById('scrBtn').className='cb act';
+    const st=screenStream.getVideoTracks()[0];
+
+    // send screen video to peers — use replaceTrack or addTrack if no video sender exists
+    for(const p of Object.values(peers)){
+      const vs=p.pc.getSenders?.().find(s=>s.track?.kind==='video'||s.track===null);
+      if(vs){
+        vs.replaceTrack(st).catch(()=>{});
+      } else {
+        try{p.pc.addTrack(st,screenStream);}catch{}
       }
+    }
 
-      // Add screen audio track if available
+    // resume AudioContext (browser blocks it until user gesture)
+    try{
+      const ctx=getAudioCtx();
+      if(ctx.state==='suspended') await ctx.resume();
+
       const screenAudioTracks=screenStream.getAudioTracks();
+      const dest=getOrCreateMixDest();
+      const micTrack=localStream.getAudioTracks()[0];
+      if(micTrack){
+        micAudioSource=ctx.createMediaStreamSource(new MediaStream([micTrack]));
+        micAudioSource.connect(dest);
+      }
       if(screenAudioTracks.length>0){
-        const sat=screenAudioTracks[0];
+        screenAudioSource=ctx.createMediaStreamSource(new MediaStream([screenAudioTracks[0]]));
+        screenAudioSource.connect(dest);
+      }
+      // small delay so dest.stream tracks are ready
+      await new Promise(r=>setTimeout(r,100));
+      const mixedTrack=dest.stream.getAudioTracks()[0];
+      if(mixedTrack){
         for(const p of Object.values(peers)){
-          try{p.pc.addTrack(sat,screenStream);}catch{}
+          const as=p.pc.getSenders?.().find(s=>s.track?.kind==='audio');
+          if(as){
+            as.replaceTrack(mixedTrack).catch(()=>{});
+          } else {
+            try{p.pc.addTrack(mixedTrack,dest.stream);}catch{}
+          }
         }
       }
+    }catch(e){console.warn('audio mix failed',e);}
 
-      const lv=document.querySelector('#tile-local video');
-      if(lv)lv.srcObject=screenStream;
-      document.getElementById('tile-local')?.classList.add('screen-tile');
-      st.onended=()=>document.getElementById('scrBtn').click();
-    }catch(e){console.warn('screen share cancelled',e);}
+    // notify peers: screen share started so they can mark the tile
+    for(const p of Object.values(peers)){
+      try{if(p.dc&&p.dc.readyState==='open')p.dc.send(JSON.stringify({screenShare:true,screenPeerId:myId}));}catch{}
+    }
+
+    // show screen in local tile
+    const lv=document.querySelector('#tile-local video');
+    if(lv){lv.srcObject=screenStream;lv.muted=true;}
+    document.getElementById('tile-local')?.classList.add('screen-tile');
+    refreshOv('local',screenStream);
+
+    st.onended=()=>{if(screenSharing)document.getElementById('scrBtn').click();};
   }
 };
 
