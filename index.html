@@ -313,11 +313,31 @@ const peers={}; // id->{pc,name,stream,micMuted,speaking,dc,audioEl,gainNode,pee
 let ws=null;
 
 const ICE={iceServers:[
+  // STUN — определение внешнего IP
   {urls:'stun:stun.l.google.com:19302'},
   {urls:'stun:stun1.l.google.com:19302'},
   {urls:'stun:stun2.l.google.com:19302'},
-  {urls:'stun:stun3.l.google.com:19302'},
-  {urls:'stun:stun4.l.google.com:19302'},
+  // TURN — проброс трафика через сервер (нужен за строгим NAT/firewall)
+  {
+    urls:[
+      'turn:openrelay.metered.ca:80',
+      'turn:openrelay.metered.ca:443',
+      'turn:openrelay.metered.ca:443?transport=tcp',
+      'turns:openrelay.metered.ca:443',
+    ],
+    username:'openrelayproject',
+    credential:'openrelayproject',
+  },
+  {
+    urls:[
+      'turn:a.relay.metered.ca:80',
+      'turn:a.relay.metered.ca:80?transport=tcp',
+      'turn:a.relay.metered.ca:443',
+      'turns:a.relay.metered.ca:443',
+    ],
+    username:'83eebabf8b1e06d02895ab60',
+    credential:'2D/yBzHDS1bmFdBP',
+  },
 ]};
 
 // AudioContext for gain control
