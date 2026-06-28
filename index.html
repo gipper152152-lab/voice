@@ -4,163 +4,392 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VoiceRoom</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#0D0E14;--surface:#16181F;--card:#1E2029;--border:#2A2D3A;
-  --accent:#5865F2;--accent-h:#4752C4;--accent-dim:rgba(88,101,242,.15);
-  --green:#23A55A;--green-dim:rgba(35,165,90,.15);
-  --red:#F23F43;--red-dim:rgba(242,63,67,.15);
-  --yellow:#FEE75C;
-  --text:#E3E5E8;--muted:#949BA4;--dim:#5C6068;--r:12px;
+  --bg:#0f0f13;
+  --surface:#17171d;
+  --surface2:#1c1c24;
+  --card:#1a1a22;
+  --border:rgba(255,255,255,.07);
+  --border2:rgba(255,255,255,.12);
+  --accent:#7c6af7;
+  --accent-soft:rgba(124,106,247,.15);
+  --accent-glow:rgba(124,106,247,.3);
+  --green:#22c55e;
+  --green-soft:rgba(34,197,94,.12);
+  --red:#ef4444;
+  --red-soft:rgba(239,68,68,.12);
+  --yellow:#eab308;
+  --text:#e8e8f0;
+  --text2:#9898b0;
+  --muted:#5a5a72;
+  --r:10px;
+  --r-lg:14px;
 }
-body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,sans-serif;min-height:100vh;display:flex;flex-direction:column}
+body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,sans-serif;min-height:100vh;display:flex;flex-direction:column;font-size:14px;-webkit-font-smoothing:antialiased}
 
-/* HEADER */
-header{padding:14px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--surface);flex-shrink:0;z-index:10}
-.logo{width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.logo svg{width:18px;height:18px;fill:#fff}
-h1{font-size:16px;font-weight:600}
+/* ─── HEADER ─────────────── */
+header{
+  height:54px;padding:0 20px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+  background:var(--surface);flex-shrink:0;z-index:10;
+}
+.logo-wrap{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo-icon{
+  width:34px;height:34px;border-radius:10px;
+  background:linear-gradient(135deg,#7c6af7,#5b4fcf);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  box-shadow:0 0 14px rgba(124,106,247,.35);
+}
+.logo-icon svg{width:20px;height:20px;fill:#fff}
+.logo-name{font-size:15px;font-weight:700;letter-spacing:-.4px;background:linear-gradient(120deg,#e8e8f0,#9898b0);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header-pipe{width:1px;height:18px;background:var(--border2);margin:0 4px}
+.channel-tag{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--text2);font-weight:500}
+.channel-tag svg{width:15px;height:15px;fill:var(--accent);opacity:.8}
 .hright{margin-left:auto;display:flex;align-items:center;gap:10px}
-.link-box{display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:12px;color:var(--muted);cursor:pointer;transition:border-color .15s;max-width:320px}
-.link-box:hover{border-color:var(--accent);color:var(--text)}
-.link-box svg{width:13px;height:13px;fill:currentColor;flex-shrink:0}
+.invite-btn{
+  display:flex;align-items:center;gap:7px;
+  background:var(--accent-soft);border:1px solid rgba(124,106,247,.25);
+  border-radius:var(--r);padding:6px 12px;font-size:12px;font-weight:500;
+  color:var(--accent);cursor:pointer;transition:all .15s;max-width:260px;
+}
+.invite-btn:hover{background:rgba(124,106,247,.22);border-color:rgba(124,106,247,.4)}
+.invite-btn svg{width:13px;height:13px;fill:currentColor;flex-shrink:0}
 .link-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.toast{font-size:11px;color:var(--green);opacity:0;transition:opacity .2s;white-space:nowrap}
+.toast{font-size:11px;color:var(--green);opacity:0;transition:opacity .2s;white-space:nowrap;font-weight:500}
 .toast.show{opacity:1}
 
 main{flex:1;display:flex;overflow:hidden;min-height:0}
 
-/* SIDEBAR */
-.sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:16px 0 0;flex-shrink:0;overflow-y:auto}
-.ch-label{font-size:11px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.8px;padding:0 16px;margin-bottom:6px}
-.channel{display:flex;align-items:center;gap:8px;padding:7px 12px;margin:0 8px 12px;border-radius:6px;background:var(--accent-dim);color:var(--accent);font-size:14px}
-.channel svg{width:15px;height:15px;fill:currentColor;flex-shrink:0}
-.participant{display:flex;align-items:center;gap:8px;padding:5px 8px;font-size:13px;color:var(--muted);border-radius:6px;margin:0 4px;cursor:default}
-.participant:hover{background:var(--card)}
-.av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;transition:box-shadow .2s}
+/* ─── SIDEBAR ─────────────── */
+.sidebar{
+  width:230px;background:var(--surface);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;
+}
+.sidebar-top{padding:16px 12px 12px;border-bottom:1px solid var(--border)}
+.s-label{
+  font-size:10px;font-weight:600;color:var(--muted);
+  text-transform:uppercase;letter-spacing:1px;padding:0 4px;margin-bottom:6px;
+}
+.channel-item{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 10px;border-radius:var(--r);
+  color:var(--text);font-size:13px;font-weight:500;
+  cursor:pointer;transition:background .12s;
+  background:var(--accent-soft);border:1px solid rgba(124,106,247,.18);
+}
+.channel-item svg{width:15px;height:15px;fill:var(--accent);flex-shrink:0}
+.participants-section{padding:12px;flex:1}
+.p-header{
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:10px;font-weight:600;color:var(--muted);
+  text-transform:uppercase;letter-spacing:1px;
+  padding:0 4px;margin-bottom:8px;
+}
+.p-count{
+  background:rgba(255,255,255,.07);color:var(--text2);
+  font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;
+}
+.participant{
+  display:flex;align-items:center;gap:9px;
+  padding:6px 8px;border-radius:8px;
+  font-size:12px;color:var(--text2);cursor:default;
+  transition:background .1s;
+}
+.participant:hover{background:rgba(255,255,255,.04);color:var(--text)}
+.av{
+  width:30px;height:30px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;flex-shrink:0;
+  transition:box-shadow .2s;
+}
 .av.sp{box-shadow:0 0 0 2px var(--green)}
-.pname{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mic-ic{width:16px;height:16px;flex-shrink:0;display:flex;align-items:center;cursor:pointer;border-radius:4px;padding:1px;transition:background .15s}
-.mic-ic:hover{background:var(--border)}
+.pname{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.mic-ic{
+  width:18px;height:18px;flex-shrink:0;display:flex;align-items:center;
+  cursor:pointer;border-radius:4px;padding:2px;transition:background .12s;
+}
+.mic-ic:hover{background:rgba(255,255,255,.08)}
 .mic-ic svg{width:14px;height:14px}
 
-/* peer volume popup */
-.vol-popup{display:none;position:absolute;right:0;top:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 12px;z-index:50;min-width:140px;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+/* vol popup */
+.vol-popup{
+  display:none;position:absolute;right:0;top:100%;
+  background:#111118;border:1px solid var(--border2);
+  border-radius:var(--r-lg);padding:12px;z-index:50;
+  min-width:160px;box-shadow:0 12px 32px rgba(0,0,0,.6);
+  margin-top:4px;
+}
 .vol-popup.open{display:block}
-.vol-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px;color:var(--muted)}
+.vol-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:12px;color:var(--muted)}
 .vol-row:last-child{margin-bottom:0}
 .vol-row input[type=range]{flex:1;accent-color:var(--accent)}
-.mute-peer-btn{width:100%;background:var(--red-dim);border:1px solid rgba(242,63,67,.3);color:var(--red);border-radius:6px;padding:5px;font-size:11px;cursor:pointer;font-family:inherit;transition:background .15s}
-.mute-peer-btn:hover{background:rgba(242,63,67,.25)}
+.mute-peer-btn{
+  width:100%;background:var(--red-soft);border:1px solid rgba(239,68,68,.2);
+  color:var(--red);border-radius:var(--r);padding:6px;font-size:12px;
+  cursor:pointer;font-family:inherit;transition:all .12s;font-weight:500;
+}
+.mute-peer-btn:hover{background:rgba(239,68,68,.2)}
 .peer-ctrl{position:relative}
 
-/* CONTENT */
-.content{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
-.statusbar{display:flex;align-items:center;gap:8px;padding:7px 20px;font-size:12px;font-weight:500;flex-shrink:0}
-.statusbar.ok{background:var(--green-dim);border-bottom:1px solid rgba(35,165,90,.2);color:var(--green)}
-.statusbar.connecting{background:rgba(254,231,92,.08);border-bottom:1px solid rgba(254,231,92,.2);color:var(--yellow)}
-.statusbar.err{background:var(--red-dim);border-bottom:1px solid rgba(242,63,67,.2);color:var(--red)}
-.sdot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 2s infinite;flex-shrink:0}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+/* ─── CONTENT ─────────────── */
+.content{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;background:var(--bg)}
+.statusbar{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 20px;font-size:12px;font-weight:500;flex-shrink:0;
+}
+.statusbar.ok{background:var(--green-soft);border-bottom:1px solid rgba(34,197,94,.15);color:var(--green)}
+.statusbar.connecting{background:rgba(234,179,8,.07);border-bottom:1px solid rgba(234,179,8,.15);color:var(--yellow)}
+.statusbar.err{background:var(--red-soft);border-bottom:1px solid rgba(239,68,68,.15);color:var(--red)}
+.sdot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* VIDEO GRID */
-.vgrid{flex:1;padding:20px;display:grid;gap:12px;overflow-y:auto;align-content:start;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
-.vtile{background:var(--card);border-radius:var(--r);border:2px solid var(--border);aspect-ratio:16/9;position:relative;overflow:hidden;transition:border-color .2s}
-.vtile.sp{border-color:var(--green)}
+/* ─── VIDEO GRID ─────────────── */
+.vgrid{
+  flex:1;padding:16px;display:grid;gap:10px;
+  overflow-y:auto;align-content:start;
+  grid-template-columns:repeat(auto-fill,minmax(290px,1fr));
+}
+.vtile{
+  background:var(--card);border-radius:var(--r-lg);
+  border:1px solid var(--border);aspect-ratio:16/9;
+  position:relative;overflow:hidden;
+  transition:border-color .2s,box-shadow .2s;
+}
+.vtile.sp{border-color:var(--green);box-shadow:0 0 0 1px rgba(34,197,94,.2),0 4px 20px rgba(34,197,94,.12)}
 .vtile.screen-tile{grid-column:1/-1;aspect-ratio:16/9;max-height:70vh}
 .vtile video{width:100%;height:100%;object-fit:cover;display:block}
 .vtile.screen-tile video{object-fit:contain;background:#000}
-.novid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:var(--card)}
-.bav{width:68px;height:68px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:600;transition:box-shadow .2s}
-.bav.sp{box-shadow:0 0 0 3px var(--green)}
+.novid{
+  position:absolute;inset:0;display:flex;
+  flex-direction:column;align-items:center;justify-content:center;gap:12px;
+  background:var(--card);
+}
+.bav{
+  width:68px;height:68px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;font-weight:700;transition:box-shadow .2s;
+}
+.bav.sp{box-shadow:0 0 0 3px var(--green),0 0 20px rgba(34,197,94,.2)}
 .wbars{display:flex;align-items:center;gap:3px;height:20px;opacity:0;transition:opacity .2s}
 .wbars.on{opacity:1}
 .bar{width:3px;border-radius:2px;background:var(--green);animation:wave .8s ease-in-out infinite}
-.bar:nth-child(2){animation-delay:.1s}.bar:nth-child(3){animation-delay:.2s}.bar:nth-child(4){animation-delay:.1s}
+.bar:nth-child(2){animation-delay:.12s}.bar:nth-child(3){animation-delay:.24s}.bar:nth-child(4){animation-delay:.12s}
 @keyframes wave{0%,100%{height:4px}50%{height:18px}}
-.tlabel{position:absolute;bottom:10px;left:10px;background:rgba(0,0,0,.65);color:#fff;font-size:12px;font-weight:500;padding:3px 8px;border-radius:4px;backdrop-filter:blur(4px);display:flex;align-items:center;gap:5px}
+.tlabel{
+  position:absolute;bottom:10px;left:10px;
+  background:rgba(0,0,0,.7);color:#fff;
+  font-size:12px;font-weight:500;padding:4px 10px;
+  border-radius:7px;backdrop-filter:blur(8px);
+  display:flex;align-items:center;gap:5px;
+  border:1px solid rgba(255,255,255,.08);
+}
 .tlabel svg{width:11px;height:11px;fill:var(--red);flex-shrink:0}
-.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--dim);grid-column:1/-1;min-height:220px;text-align:center}
-.empty svg{width:44px;height:44px;fill:var(--dim);opacity:.4}
-.empty p{font-size:14px;line-height:1.6}
-
-/* fullscreen expand btn on tile */
-.expand-btn{position:absolute;top:8px;right:8px;width:28px;height:28px;background:rgba(0,0,0,.55);border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;backdrop-filter:blur(4px)}
+.empty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:16px;color:var(--muted);grid-column:1/-1;min-height:260px;text-align:center;
+}
+.empty-icon{
+  width:68px;height:68px;border-radius:20px;
+  background:rgba(124,106,247,.08);border:1px solid rgba(124,106,247,.15);
+  display:flex;align-items:center;justify-content:center;
+}
+.empty-icon svg{width:32px;height:32px;fill:var(--accent);opacity:.6}
+.empty h3{font-size:15px;font-weight:600;color:var(--text2)}
+.empty p{font-size:13px;color:var(--muted);line-height:1.6;max-width:240px}
+.expand-btn{
+  position:absolute;top:8px;right:8px;width:28px;height:28px;
+  background:rgba(0,0,0,.6);border:none;border-radius:8px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:all .15s;backdrop-filter:blur(6px);
+}
 .vtile:hover .expand-btn{opacity:1}
+.expand-btn:hover{background:rgba(0,0,0,.85)}
 .expand-btn svg{width:14px;height:14px;fill:#fff;pointer-events:none}
 
-/* LIGHTBOX (fullscreen view) */
-.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:200;display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px}
+/* ─── LIGHTBOX ─────────────── */
+.lightbox{
+  position:fixed;inset:0;background:rgba(0,0,0,.92);
+  z-index:200;display:none;align-items:center;justify-content:center;
+  flex-direction:column;gap:12px;backdrop-filter:blur(6px);
+}
 .lightbox.open{display:flex}
-.lightbox video{max-width:95vw;max-height:88vh;border-radius:8px;background:#000;object-fit:contain}
-.lb-close{position:absolute;top:16px;right:20px;background:rgba(255,255,255,.1);border:none;border-radius:8px;color:#fff;font-size:13px;padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .15s}
-.lb-close:hover{background:rgba(255,255,255,.2)}
+.lightbox video{max-width:95vw;max-height:88vh;border-radius:var(--r-lg);background:#000;object-fit:contain}
+.lb-close{
+  position:absolute;top:16px;right:20px;
+  background:rgba(255,255,255,.07);border:1px solid var(--border2);
+  border-radius:var(--r);color:#fff;font-size:13px;padding:8px 16px;
+  cursor:pointer;display:flex;align-items:center;gap:6px;
+  transition:all .15s;font-family:inherit;font-weight:500;
+}
+.lb-close:hover{background:rgba(255,255,255,.14)}
 .lb-close svg{width:14px;height:14px;fill:#fff}
-.lb-label{color:rgba(255,255,255,.6);font-size:13px}
+.lb-label{color:rgba(255,255,255,.45);font-size:13px;font-weight:500}
 
-/* CONTROLS */
-.cbar{padding:14px 24px;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:10px;flex-shrink:0}
-.cb{width:46px;height:46px;border-radius:12px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .1s;position:relative}
-.cb:active{transform:scale(.95)}
-.cb svg{width:20px;height:20px;pointer-events:none}
-.cb.off{background:var(--card);border:1px solid var(--border)}
-.cb.off svg{fill:var(--text)}
-.cb.off:hover{background:#262835}
-.cb.mut{background:var(--red-dim);border:1px solid rgba(242,63,67,.3)}
+/* ─── CONTROLS BAR ─────────────── */
+.cbar{
+  padding:14px 28px;
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;gap:6px;flex-shrink:0;
+}
+.cb{
+  width:46px;height:46px;border-radius:50%;border:none;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;position:relative;
+}
+.cb:active{transform:scale(.91)}
+.cb svg{width:19px;height:19px;pointer-events:none}
+.cb.off{background:rgba(255,255,255,.07)}
+.cb.off svg{fill:var(--text2)}
+.cb.off:hover{background:rgba(255,255,255,.12)}
+.cb.mut{background:var(--red-soft);border:1px solid rgba(239,68,68,.2)}
 .cb.mut svg{fill:var(--red)}
-.cb.mut:hover{background:rgba(242,63,67,.25)}
-.cb.act{background:var(--accent-dim);border:1px solid rgba(88,101,242,.3)}
+.cb.mut:hover{background:rgba(239,68,68,.2)}
+.cb.act{background:var(--accent-soft);border:1px solid rgba(124,106,247,.25)}
 .cb.act svg{fill:var(--accent)}
-.cb.danger{background:var(--red);border:none}
+.cb.act:hover{background:rgba(124,106,247,.25)}
+.cb.danger{background:var(--red);border:none;border-radius:12px;width:56px}
 .cb.danger svg{fill:#fff}
-.cb.danger:hover{background:#D63538}
-.tip{position:absolute;bottom:52px;left:50%;transform:translateX(-50%);background:#111;color:#fff;font-size:11px;padding:4px 8px;border-radius:4px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:10}
+.cb.danger:hover{background:#dc2626;box-shadow:0 0 16px rgba(239,68,68,.35)}
+.sep{width:1px;height:24px;background:var(--border2);margin:0 6px}
+
+.tip{
+  position:absolute;bottom:54px;left:50%;transform:translateX(-50%);
+  background:#0c0c14;color:var(--text);font-size:11px;font-weight:500;
+  padding:5px 10px;border-radius:7px;white-space:nowrap;
+  pointer-events:none;opacity:0;transition:opacity .15s;z-index:10;
+  border:1px solid var(--border2);
+}
 .cb:hover .tip{opacity:1}
 
-/* output volume popup */
+/* vol output popup */
 .vol-ctrl-wrap{position:relative}
-.out-vol-popup{display:none;position:absolute;bottom:56px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;z-index:50;min-width:160px;box-shadow:0 4px 24px rgba(0,0,0,.5);white-space:nowrap}
+.out-vol-popup{
+  display:none;position:absolute;bottom:58px;left:50%;transform:translateX(-50%);
+  background:#111118;border:1px solid var(--border2);
+  border-radius:var(--r-lg);padding:14px 16px;z-index:50;
+  min-width:180px;box-shadow:0 12px 32px rgba(0,0,0,.6);white-space:nowrap;
+}
 .out-vol-popup.open{display:block}
-.ovp-label{font-size:11px;color:var(--muted);margin-bottom:8px;display:block}
+.ovp-label{font-size:10px;color:var(--muted);margin-bottom:10px;display:block;font-weight:600;text-transform:uppercase;letter-spacing:.8px}
 .ovp-row{display:flex;align-items:center;gap:8px;font-size:12px}
-.ovp-row svg{width:14px;height:14px;fill:var(--muted);flex-shrink:0}
+.ovp-row svg{width:13px;height:13px;fill:var(--muted);flex-shrink:0}
 .ovp-row input[type=range]{flex:1;accent-color:var(--accent)}
-.deaf-row{margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+.deaf-row{margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.deaf-btn{
+  width:100%;background:rgba(255,255,255,.05);
+  border:1px solid var(--border2);
+  color:var(--text2);border-radius:var(--r);padding:7px;
+  font-size:12px;cursor:pointer;font-family:inherit;
+  transition:all .12s;font-weight:500;
+}
+.deaf-btn:hover{background:rgba(255,255,255,.1);color:var(--text)}
 
-/* JOIN OVERLAY */
-.joverlay{position:fixed;inset:0;background:rgba(13,14,20,.97);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(8px)}
-.jcard{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:36px 40px;width:440px;display:flex;flex-direction:column;align-items:center}
-.jlogo{width:52px;height:52px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:18px}
-.jlogo svg{width:28px;height:28px;fill:#fff}
-.jcard h2{font-size:21px;font-weight:600;margin-bottom:8px}
-.jcard .sub{color:var(--muted);font-size:13px;text-align:center;margin-bottom:22px;line-height:1.6}
-.pvbox{width:100%;aspect-ratio:16/9;background:#0a0b10;border-radius:10px;border:1px solid var(--border);margin-bottom:18px;overflow:hidden;position:relative}
+/* ─── JOIN OVERLAY ─────────────── */
+.joverlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.88);
+  display:flex;align-items:center;justify-content:center;z-index:100;
+  backdrop-filter:blur(20px);
+}
+.jcard{
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  border-radius:20px;padding:32px;width:460px;
+  display:flex;flex-direction:column;align-items:center;
+  box-shadow:0 32px 80px rgba(0,0,0,.7);
+  animation:slideUp .28s cubic-bezier(.22,.8,.4,1);
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+/* big logo in join screen */
+.jlogo-wrap{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.jlogo-icon{
+  width:52px;height:52px;border-radius:14px;
+  background:linear-gradient(135deg,#7c6af7,#5b4fcf);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 24px rgba(124,106,247,.4);
+}
+.jlogo-icon svg{width:28px;height:28px;fill:#fff}
+.jlogo-text{text-align:left}
+.jlogo-text h2{font-size:22px;font-weight:700;letter-spacing:-.5px;background:linear-gradient(120deg,#e8e8f0 30%,#9898b0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:2px}
+.jlogo-text p{font-size:12px;color:var(--muted);font-weight:500}
+
+.jcard .sub{color:var(--muted);font-size:13px;text-align:center;margin-bottom:22px;line-height:1.6;width:100%}
+.pvbox{
+  width:100%;aspect-ratio:16/9;
+  background:#0d0d14;border-radius:var(--r-lg);
+  border:1px solid var(--border);
+  margin-bottom:20px;overflow:hidden;position:relative;
+}
 .pvbox video{width:100%;height:100%;object-fit:cover}
-.pv-none{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--muted);font-size:13px}
-.pv-none svg{width:32px;height:32px;fill:var(--dim)}
-.ninput{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;padding:10px 14px;margin-bottom:12px;outline:none;transition:border-color .15s;font-family:inherit}
-.ninput:focus{border-color:var(--accent)}
-.drow{display:flex;gap:8px;width:100%;margin-bottom:10px;flex-wrap:wrap}
-.drow-3{display:flex;gap:8px;width:100%;margin-bottom:18px;flex-wrap:wrap}
-.dsel{flex:1;min-width:0;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;padding:8px 10px;outline:none;cursor:pointer;font-family:inherit;transition:border-color .15s}
-.dsel:focus{border-color:var(--accent)}
-.jbtn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;transition:background .15s,transform .1s;font-family:inherit}
-.jbtn:hover{background:var(--accent-h)}
-.jbtn:active{transform:scale(.99)}
-.jbtn:disabled{opacity:.5;cursor:not-allowed}
-.toggle-row{display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:14px;font-size:13px;color:var(--muted)}
-.toggle-row span{display:flex;align-items:center;gap:6px}
-.toggle-row span svg{width:14px;height:14px;fill:var(--muted)}
-.toggle{position:relative;width:36px;height:20px;flex-shrink:0}
-.toggle input{opacity:0;width:0;height:0}
-.toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--border);border-radius:20px;transition:.2s}
-.toggle-slider:before{position:absolute;content:"";height:14px;width:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s}
-.toggle input:checked+.toggle-slider{background:var(--accent)}
-.toggle input:checked+.toggle-slider:before{transform:translateX(16px)}
+.pv-none{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:8px;
+  color:var(--muted);font-size:13px;font-weight:500;
+}
+.pv-none svg{width:30px;height:30px;fill:var(--muted);opacity:.5}
 
-@media(max-width:600px){.sidebar{display:none}.jcard{width:92vw;padding:28px 20px}.vgrid{grid-template-columns:1fr}}
+.ninput{
+  width:100%;background:rgba(0,0,0,.35);
+  border:1px solid var(--border2);border-radius:var(--r);
+  color:var(--text);font-size:14px;padding:11px 14px;margin-bottom:12px;
+  outline:none;transition:border-color .15s,box-shadow .15s;font-family:inherit;
+}
+.ninput:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,106,247,.12)}
+.ninput::placeholder{color:var(--muted)}
+.drow{display:flex;gap:8px;width:100%;margin-bottom:10px}
+.drow-3{display:flex;gap:8px;width:100%;margin-bottom:16px}
+.dsel{
+  flex:1;min-width:0;background:rgba(0,0,0,.35);
+  border:1px solid var(--border2);border-radius:var(--r);
+  color:var(--text);font-size:12px;padding:9px 10px;
+  outline:none;cursor:pointer;font-family:inherit;
+  transition:border-color .12s;appearance:none;
+}
+.dsel:focus{border-color:var(--accent)}
+.jbtn{
+  width:100%;
+  background:linear-gradient(135deg,#7c6af7,#5b4fcf);
+  color:#fff;border:none;
+  border-radius:var(--r);padding:13px;font-size:15px;font-weight:600;
+  cursor:pointer;transition:all .15s;font-family:inherit;
+  box-shadow:0 4px 16px rgba(124,106,247,.35);
+}
+.jbtn:hover{box-shadow:0 6px 24px rgba(124,106,247,.5);transform:translateY(-1px)}
+.jbtn:active{transform:scale(.99) translateY(0)}
+.jbtn:disabled{opacity:.5;cursor:not-allowed;box-shadow:none;transform:none}
+.toggle-row{
+  display:flex;align-items:center;justify-content:space-between;
+  width:100%;margin-bottom:16px;font-size:13px;color:var(--text2);
+}
+.toggle-row span{display:flex;align-items:center;gap:7px;font-weight:500}
+.toggle-row span svg{width:15px;height:15px;fill:var(--text2)}
+.toggle{position:relative;width:40px;height:22px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;cursor:pointer;inset:0;background:var(--muted);border-radius:22px;transition:.2s}
+.toggle-slider:before{
+  position:absolute;content:"";height:16px;width:16px;
+  left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s;
+}
+.toggle input:checked+.toggle-slider{background:var(--accent)}
+.toggle input:checked+.toggle-slider:before{transform:translateX(18px)}
+
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.14)}
+
+@media(max-width:640px){
+  .sidebar{display:none}
+  .jcard{width:92vw;padding:24px 18px}
+  .vgrid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
@@ -168,9 +397,21 @@ main{flex:1;display:flex;overflow:hidden;min-height:0}
 <!-- JOIN OVERLAY -->
 <div class="joverlay" id="JO">
   <div class="jcard">
-    <div class="jlogo"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 100 18A9 9 0 0012 3zm-1 13H9V8h2v8zm4 0h-2V8h2v8z"/></svg></div>
-    <h2>Войти в комнату</h2>
-    <p class="sub">Голосовой и видеочат прямо в браузере.<br>Поделись ссылкой — друг подключится мгновенно.</p>
+    <div class="jlogo-wrap">
+      <div class="jlogo-icon">
+        <svg viewBox="0 0 24 24" fill="none">
+          <circle cx="9" cy="8" r="3" fill="white" opacity=".9"/>
+          <circle cx="15" cy="8" r="3" fill="white" opacity=".9"/>
+          <path d="M4 17c0-2.5 2.5-4 5-4h6c2.5 0 5 1.5 5 4" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
+          <path d="M12 13v3M10 16h4" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="jlogo-text">
+        <h2>VoiceRoom</h2>
+        <p>Голосовой и видеочат в браузере</p>
+      </div>
+    </div>
+    <p class="sub">Войди и поделись ссылкой — друг подключится мгновенно.</p>
     <div class="pvbox">
       <video id="pvVid" autoplay muted playsinline></video>
       <div class="pv-none" id="pvNone">
@@ -193,7 +434,7 @@ main{flex:1;display:flex;overflow:hidden;min-height:0}
       </span>
       <label class="toggle"><input type="checkbox" id="camStartToggle"><span class="toggle-slider"></span></label>
     </div>
-    <button class="jbtn" id="joinBtn">Подключиться</button>
+    <button class="jbtn" id="joinBtn">Войти в комнату</button>
   </div>
 </div>
 
@@ -209,28 +450,46 @@ main{flex:1;display:flex;overflow:hidden;min-height:0}
 
 <!-- HEADER -->
 <header>
-  <div class="logo"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 100 18A9 9 0 0012 3zm-1 13H9V8h2v8zm4 0h-2V8h2v8z"/></svg></div>
-  <h1>VoiceRoom</h1>
+  <div class="logo-wrap">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none">
+        <circle cx="9" cy="8" r="3" fill="white" opacity=".9"/>
+        <circle cx="15" cy="8" r="3" fill="white" opacity=".9"/>
+        <path d="M4 17c0-2.5 2.5-4 5-4h6c2.5 0 5 1.5 5 4" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M12 13v3M10 16h4" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <span class="logo-name">VoiceRoom</span>
+  </div>
+  <div class="header-pipe"></div>
+  <div class="channel-tag">
+    <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15A1 1 0 009.1 12c-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V21c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.09-.6-.4-1.14-1.01-1.14z"/></svg>
+    Общий
+  </div>
   <div class="hright">
-    <div class="link-box" id="copyBtn">
+    <div class="invite-btn" id="copyBtn">
       <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
       <span class="link-text" id="hdrUrl">—</span>
     </div>
-    <span class="toast" id="toast">✓ Скопировано</span>
+    <span class="toast" id="toast">✓ Ссылка скопирована</span>
   </div>
 </header>
 
 <main>
   <div class="sidebar">
-    <div style="padding:0 12px;margin-bottom:12px">
-      <div class="ch-label" style="margin-bottom:6px">Голосовые</div>
-      <div class="channel">
+    <div class="sidebar-top">
+      <div class="s-label">Каналы</div>
+      <div class="channel-item">
         <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15A1 1 0 009.1 12c-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V21c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.09-.6-.4-1.14-1.01-1.14z"/></svg>
         Общий
       </div>
     </div>
-    <div class="ch-label">Участники</div>
-    <div id="sideList"></div>
+    <div class="participants-section">
+      <div class="p-header">
+        В комнате <span class="p-count" id="countBadge">0</span>
+      </div>
+      <div id="sideList"></div>
+    </div>
   </div>
 
   <div class="content">
@@ -240,45 +499,47 @@ main{flex:1;display:flex;overflow:hidden;min-height:0}
     </div>
     <div class="vgrid" id="grid">
       <div class="empty" id="emptyHint">
-        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-        <p>Войдите и поделитесь ссылкой с другом</p>
+        <div class="empty-icon">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+        </div>
+        <h3>Комната пуста</h3>
+        <p>Войди и поделись ссылкой, чтобы начать общение</p>
       </div>
     </div>
+
+    <!-- CONTROLS -->
     <div class="cbar">
-      <!-- Микрофон -->
       <button class="cb mut" id="micBtn">
         <svg id="micI" viewBox="0 0 24 24"><path d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z"/></svg>
         <span class="tip" id="micTip">Вкл. микрофон</span>
       </button>
-      <!-- Камера -->
       <button class="cb mut" id="camBtn">
         <svg id="camI" viewBox="0 0 24 24"><path d="M21 6.5l-4-4-9.5 9.5-2 4 4-2L21 6.5zM3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/></svg>
         <span class="tip" id="camTip">Вкл. камеру</span>
       </button>
-      <!-- Демонстрация экрана -->
       <button class="cb off" id="scrBtn">
         <svg viewBox="0 0 24 24"><path d="M21 3H3c-1.11 0-2 .89-2 2v12c0 1.1.89 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.11-.9-2-2-2zm0 14H3V5h18v12z"/></svg>
-        <span class="tip">Демонстрация экрана</span>
+        <span class="tip">Экран</span>
       </button>
-      <!-- Громкость / наушники -->
+      <div class="sep"></div>
       <div class="vol-ctrl-wrap">
         <button class="cb off" id="spkBtn">
           <svg id="spkI" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
-          <span class="tip">Громкость / наушники</span>
+          <span class="tip">Громкость</span>
         </button>
         <div class="out-vol-popup" id="outVolPopup">
-          <span class="ovp-label">Громкость воспроизведения</span>
+          <span class="ovp-label">Громкость</span>
           <div class="ovp-row">
             <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
             <input type="range" min="0" max="100" value="100" id="masterVol">
             <span id="masterVolVal">100</span>
           </div>
           <div class="deaf-row">
-            <button class="mute-peer-btn" id="deafBtn" style="background:var(--card);color:var(--text);border-color:var(--border)">🎧 Заглушить наушники</button>
+            <button class="deaf-btn" id="deafBtn">🎧 Заглушить наушники</button>
           </div>
         </div>
       </div>
-      <!-- Покинуть -->
+      <div class="sep"></div>
       <button class="cb danger" id="lvBtn">
         <svg viewBox="0 0 24 24"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
         <span class="tip">Покинуть</span>
@@ -288,12 +549,10 @@ main{flex:1;display:flex;overflow:hidden;min-height:0}
 </main>
 
 <script>
-// ── helpers ──────────────────────────────────────────────
-const COLORS=['#5865F2','#57F287','#FEE75C','#EB459E','#ED4245','#7289DA','#00B4D8'];
+const COLORS=['#7c6af7','#22c55e','#f59e0b','#ec4899','#ef4444','#3b82f6','#06b6d4'];
 const pickCol=n=>COLORS[Math.abs([...n].reduce((s,c)=>s+c.charCodeAt(0),0))%COLORS.length];
 const inits=n=>n.trim().split(/\s+/).map(w=>w[0]).join('').toUpperCase().slice(0,2)||'?';
 
-// ── room from URL hash ────────────────────────────────────
 const ROOM=(()=>{let h=location.hash.slice(1);if(!h){h='R'+Math.random().toString(36).slice(2,7).toUpperCase();location.hash=h;}return h;})();
 const myId='u'+Math.random().toString(36).slice(2,10);
 const ROOM_URL=location.href.split('#')[0]+'#'+ROOM;
@@ -305,53 +564,25 @@ document.getElementById('copyBtn').onclick=()=>{
   });
 };
 
-// ── state ─────────────────────────────────────────────────
 let localStream=null,localName='';
 let micMuted=true,camOff=true,screenSharing=false,screenStream=null;
 let deafened=false,masterVolume=1.0;
-const peers={}; // id->{pc,name,stream,micMuted,speaking,dc,audioEl,gainNode,peerMuted,peerVolume}
+const peers={};
 let ws=null;
 
 const ICE={iceServers:[
-  // STUN — определение внешнего IP
   {urls:'stun:stun.l.google.com:19302'},
   {urls:'stun:stun1.l.google.com:19302'},
   {urls:'stun:stun2.l.google.com:19302'},
-  // TURN — проброс трафика через сервер (нужен за строгим NAT/firewall)
-  {
-    urls:[
-      'turn:openrelay.metered.ca:80',
-      'turn:openrelay.metered.ca:443',
-      'turn:openrelay.metered.ca:443?transport=tcp',
-      'turns:openrelay.metered.ca:443',
-    ],
-    username:'openrelayproject',
-    credential:'openrelayproject',
-  },
-  {
-    urls:[
-      'turn:a.relay.metered.ca:80',
-      'turn:a.relay.metered.ca:80?transport=tcp',
-      'turn:a.relay.metered.ca:443',
-      'turns:a.relay.metered.ca:443',
-    ],
-    username:'83eebabf8b1e06d02895ab60',
-    credential:'2D/yBzHDS1bmFdBP',
-  },
+  {urls:['turn:openrelay.metered.ca:80','turn:openrelay.metered.ca:443','turn:openrelay.metered.ca:443?transport=tcp','turns:openrelay.metered.ca:443'],username:'openrelayproject',credential:'openrelayproject'},
+  {urls:['turn:a.relay.metered.ca:80','turn:a.relay.metered.ca:80?transport=tcp','turn:a.relay.metered.ca:443','turns:a.relay.metered.ca:443'],username:'83eebabf8b1e06d02895ab60',credential:'2D/yBzHDS1bmFdBP'},
 ]};
 
-// AudioContext for gain control
 let audioCtx=null;
-function getAudioCtx(){
-  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-  return audioCtx;
-}
+function getAudioCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
 
-// ── devices ───────────────────────────────────────────────
 let previewStream=null;
-
 async function loadDevices(){
-  // Ask permission so labels appear
   try{const tmp=await navigator.mediaDevices.getUserMedia({audio:true,video:false});tmp.getTracks().forEach(t=>t.stop());}catch{}
   try{
     const devs=await navigator.mediaDevices.enumerateDevices();
@@ -360,33 +591,22 @@ async function loadDevices(){
     const spks=devs.filter(d=>d.kind==='audiooutput');
     document.getElementById('micSel').innerHTML=mics.map((d,i)=>`<option value="${d.deviceId}">${d.label||'Микрофон '+(i+1)}</option>`).join('');
     document.getElementById('camSel').innerHTML=cams.map((d,i)=>`<option value="${d.deviceId}">${d.label||'Камера '+(i+1)}</option>`).join('');
-    document.getElementById('spkSel').innerHTML=spks.length
-      ? spks.map((d,i)=>`<option value="${d.deviceId}">${d.label||'Динамики '+(i+1)}</option>`).join('')
-      : '<option value="">По умолчанию</option>';
+    document.getElementById('spkSel').innerHTML=spks.length?spks.map((d,i)=>`<option value="${d.deviceId}">${d.label||'Динамики '+(i+1)}</option>`).join(''):'<option value="">По умолчанию</option>';
   }catch{}
 }
 
-// camera toggle for preview in join screen
 document.getElementById('camStartToggle').onchange=async function(){
-  const pvVid=document.getElementById('pvVid');
-  const pvNone=document.getElementById('pvNone');
+  const pvVid=document.getElementById('pvVid'),pvNone=document.getElementById('pvNone');
   if(this.checked){
-    try{
-      const camId=document.getElementById('camSel').value;
-      previewStream=await navigator.mediaDevices.getUserMedia({video:camId?{deviceId:{exact:camId}}:true,audio:false});
-      pvVid.srcObject=previewStream;
-      pvNone.style.display='none';
-    }catch{pvNone.style.display='flex';}
+    try{const camId=document.getElementById('camSel').value;previewStream=await navigator.mediaDevices.getUserMedia({video:camId?{deviceId:{exact:camId}}:true,audio:false});pvVid.srcObject=previewStream;pvNone.style.display='none';}
+    catch{pvNone.style.display='flex';}
   }else{
     if(previewStream){previewStream.getTracks().forEach(t=>t.stop());previewStream=null;}
-    pvVid.srcObject=null;
-    pvNone.style.display='flex';
+    pvVid.srcObject=null;pvNone.style.display='flex';
   }
 };
-
 loadDevices();
 
-// ── join ──────────────────────────────────────────────────
 document.getElementById('joinBtn').onclick=doJoin;
 document.getElementById('nameIn').onkeydown=e=>{if(e.key==='Enter')doJoin();};
 
@@ -395,58 +615,26 @@ async function doJoin(){
   localName=name;
   const btn=document.getElementById('joinBtn');
   btn.disabled=true;btn.textContent='Получаем доступ...';
-
   const micId=document.getElementById('micSel').value;
   const camId=document.getElementById('camSel').value;
   const wantCam=document.getElementById('camStartToggle').checked;
-
-  // Stop preview
   if(previewStream){previewStream.getTracks().forEach(t=>t.stop());previewStream=null;}
   const pv=document.getElementById('pvVid');
   if(pv.srcObject){pv.srcObject.getTracks().forEach(t=>t.stop());pv.srcObject=null;}
-
-  try{
-    localStream=await navigator.mediaDevices.getUserMedia({
-      audio:micId?{deviceId:{exact:micId}}:true,
-      video:wantCam?(camId?{deviceId:{exact:camId}}:true):false
-    });
-  }catch(e){
-    try{localStream=await navigator.mediaDevices.getUserMedia({audio:true});}
-    catch{localStream=new MediaStream();}
-  }
-
-  // Apply initial states: mic muted by default, cam off
-  localStream.getAudioTracks().forEach(t=>t.enabled=false); // start muted
-  if(!wantCam){
-    localStream.getVideoTracks().forEach(t=>{t.stop();});
-    camOff=true;
-  }else{
-    camOff=false;
-  }
-
-  // Set preferred output device for future audio elements
+  try{localStream=await navigator.mediaDevices.getUserMedia({audio:micId?{deviceId:{exact:micId}}:true,video:wantCam?(camId?{deviceId:{exact:camId}}:true):false});}
+  catch(e){try{localStream=await navigator.mediaDevices.getUserMedia({audio:true});}catch{localStream=new MediaStream();}}
+  localStream.getAudioTracks().forEach(t=>t.enabled=false);
+  if(!wantCam){localStream.getVideoTracks().forEach(t=>{t.stop();});camOff=true;}else{camOff=false;}
   selectedSinkId=document.getElementById('spkSel').value||'';
-
   document.getElementById('JO').style.display='none';
   showBar('connecting','Подключение...');
-  renderLocalTile();
-  setupVAD();
-  connectWS(name);
-
-  // Update control buttons to reflect initial state
-  updateMicBtn();
-  updateCamBtn();
+  renderLocalTile();setupVAD();connectWS(name);
+  updateMicBtn();updateCamBtn();
 }
 
-// ── output device ─────────────────────────────────────────
 let selectedSinkId='';
+async function setSinkForEl(el){if(!el||!el.setSinkId||!selectedSinkId)return;try{await el.setSinkId(selectedSinkId);}catch{}}
 
-async function setSinkForEl(el){
-  if(!el||!el.setSinkId||!selectedSinkId)return;
-  try{await el.setSinkId(selectedSinkId);}catch{}
-}
-
-// ── WebSocket signaling ───────────────────────────────────
 function connectWS(name){
   const proto=location.protocol==='https:'?'wss':'ws';
   const url=`${proto}://${location.host}/ws?room=${encodeURIComponent(ROOM)}&name=${encodeURIComponent(name)}&id=${myId}`;
@@ -460,158 +648,64 @@ function wsSend(obj){if(ws&&ws.readyState===1)ws.send(JSON.stringify(obj));}
 
 async function handleMsg(msg){
   const{type,from,name:pname,sdp,candidate,peers:peerList}=msg;
-  if(type==='room-info'){
-    for(const p of(peerList||[])){if(p.id!==myId&&!peers[p.id])await callPeer(p.id,p.name);}
-    updateCount();
-  }else if(type==='user-joined'){updateCount();}
+  if(type==='room-info'){for(const p of(peerList||[])){if(p.id!==myId&&!peers[p.id])await callPeer(p.id,p.name);}updateCount();}
+  else if(type==='user-joined'){updateCount();}
   else if(type==='offer'){if(!peers[from])await answerPeer(from,pname,sdp);}
   else if(type==='answer'){if(peers[from])await peers[from].pc.setRemoteDescription(new RTCSessionDescription(sdp));}
   else if(type==='ice'){if(peers[from]&&candidate)peers[from].pc.addIceCandidate(new RTCIceCandidate(candidate)).catch(()=>{});}
   else if(type==='user-left'){removePeer(from);}
-  else if(type==='meta'){
-    if(peers[from]){
-      peers[from].micMuted=msg.micMuted;
-      peers[from].speaking=msg.speaking;
-      setSp(from,msg.speaking);
-      updateLabelMute(from,msg.micMuted);
-      updateSidebar();
-    }
-  }
+  else if(type==='meta'){if(peers[from]){peers[from].micMuted=msg.micMuted;peers[from].speaking=msg.speaking;setSp(from,msg.speaking);updateLabelMute(from,msg.micMuted);updateSidebar();}}
 }
 
-// ── WebRTC ─────────────────────────────────────────────────
 function makePC(peerId,peerName){
   const pc=new RTCPeerConnection(ICE);
   peers[peerId]={pc,name:peerName,stream:null,micMuted:false,speaking:false,audioEl:null,gainNode:null,peerMuted:false,peerVolume:100};
-
   localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
-
   pc.ontrack=e=>{
-    // Build remote stream
-    if(!peers[peerId].stream) peers[peerId].stream=new MediaStream();
+    if(!peers[peerId].stream)peers[peerId].stream=new MediaStream();
     peers[peerId].stream.addTrack(e.track);
-
-    if(e.track.kind==='audio'){
-      setupPeerAudio(peerId,e.track);
-    }else{
-      // video track — update tile (may be screen share or camera)
-      renderPeerTile(peerId,peerName,peers[peerId].stream);
-      // always refresh the video element's srcObject so new tracks show up
-      const tv=document.querySelector('#tile-'+peerId+' video');
-      if(tv){tv.srcObject=peers[peerId].stream;}
-      refreshOv(peerId,peers[peerId].stream);
-      updateSidebar();updateCount();
-    }
+    if(e.track.kind==='audio'){setupPeerAudio(peerId,e.track);}
+    else{renderPeerTile(peerId,peerName,peers[peerId].stream);const tv=document.querySelector('#tile-'+peerId+' video');if(tv){tv.srcObject=peers[peerId].stream;}refreshOv(peerId,peers[peerId].stream);updateSidebar();updateCount();}
   };
-
   pc.onicecandidate=e=>{if(e.candidate)wsSend({type:'ice',to:peerId,from:myId,candidate:e.candidate});};
   pc.onconnectionstatechange=()=>{if(pc.connectionState==='failed'||pc.connectionState==='disconnected')removePeer(peerId);};
-
-  // Data channel for meta
-  try{
-    const dc=pc.createDataChannel('meta',{ordered:false,maxRetransmits:0});
-    dc.onmessage=e=>applyMeta(peerId,e.data);
-    peers[peerId].dc=dc;
-    pc.ondatachannel=ev=>{ev.channel.onmessage=e=>applyMeta(peerId,e.data);};
-  }catch{}
-
+  try{const dc=pc.createDataChannel('meta',{ordered:false,maxRetransmits:0});dc.onmessage=e=>applyMeta(peerId,e.data);peers[peerId].dc=dc;pc.ondatachannel=ev=>{ev.channel.onmessage=e=>applyMeta(peerId,e.data);};}catch{}
   return pc;
 }
 
-// Setup per-peer audio with gain node for volume control + screen share audio
-function setupPeerAudio(peerId, track){
-  const p=peers[peerId];
-  if(!p)return;
-
+function setupPeerAudio(peerId,track){
+  const p=peers[peerId];if(!p)return;
   const ctx=getAudioCtx();
-  // Create audio element for output device routing
-  const audioEl=new Audio();
-  audioEl.autoplay=true;
-  audioEl.muted=deafened;
-  setSinkForEl(audioEl);
-
-  const stream=new MediaStream([track]);
-  audioEl.srcObject=stream;
-
-  // Gain node
+  const audioEl=new Audio();audioEl.autoplay=true;audioEl.muted=deafened;setSinkForEl(audioEl);
+  const stream=new MediaStream([track]);audioEl.srcObject=stream;
   const source=ctx.createMediaStreamSource(stream);
-  const gainNode=ctx.createGain();
-  gainNode.gain.value=p.peerVolume/100*masterVolume;
-  source.connect(gainNode);
-  gainNode.connect(ctx.destination);
-
-  p.audioEl=audioEl;
-  p.gainNode=gainNode;
-  p.audioSource=source;
-
-  // also mute the video element audio to avoid doubling
-  const vEl=document.querySelector('#tile-'+peerId+' video');
-  if(vEl)vEl.muted=true;
+  const gainNode=ctx.createGain();gainNode.gain.value=p.peerVolume/100*masterVolume;
+  source.connect(gainNode);gainNode.connect(ctx.destination);
+  p.audioEl=audioEl;p.gainNode=gainNode;p.audioSource=source;
+  const vEl=document.querySelector('#tile-'+peerId+' video');if(vEl)vEl.muted=true;
 }
 
 function applyMeta(peerId,raw){
   try{
-    const d=JSON.parse(raw);
-    if(!peers[peerId])return;
-    // screen share state from peer
-    if(d.screenShare!==undefined){
-      const tile=document.getElementById('tile-'+peerId);
-      if(tile){
-        if(d.screenShare){
-          tile.classList.add('screen-tile');
-        } else {
-          tile.classList.remove('screen-tile');
-        }
-      }
-      return;
-    }
-    peers[peerId].micMuted=d.micMuted;
-    peers[peerId].speaking=d.speaking;
-    setSp(peerId,d.speaking);
-    updateSidebar();
-    updateLabelMute(peerId,d.micMuted);
+    const d=JSON.parse(raw);if(!peers[peerId])return;
+    if(d.screenShare!==undefined){const tile=document.getElementById('tile-'+peerId);if(tile){if(d.screenShare){tile.classList.add('screen-tile');}else{tile.classList.remove('screen-tile');}}return;}
+    peers[peerId].micMuted=d.micMuted;peers[peerId].speaking=d.speaking;setSp(peerId,d.speaking);updateSidebar();updateLabelMute(peerId,d.micMuted);
   }catch{}
 }
 
-async function callPeer(peerId,peerName){
-  const pc=makePC(peerId,peerName);
-  const offer=await pc.createOffer();
-  await pc.setLocalDescription(offer);
-  wsSend({type:'offer',to:peerId,from:myId,name:localName,sdp:offer});
-}
-async function answerPeer(peerId,peerName,sdp){
-  const pc=makePC(peerId,peerName);
-  await pc.setRemoteDescription(new RTCSessionDescription(sdp));
-  const answer=await pc.createAnswer();
-  await pc.setLocalDescription(answer);
-  wsSend({type:'answer',to:peerId,from:myId,name:localName,sdp:answer});
-}
-function removePeer(peerId){
-  if(!peers[peerId])return;
-  try{peers[peerId].pc.close();}catch{}
-  try{peers[peerId].audioEl?.pause();}catch{}
-  delete peers[peerId];
-  document.getElementById('tile-'+peerId)?.remove();
-  updateSidebar();updateCount();
-}
+async function callPeer(peerId,peerName){const pc=makePC(peerId,peerName);const offer=await pc.createOffer();await pc.setLocalDescription(offer);wsSend({type:'offer',to:peerId,from:myId,name:localName,sdp:offer});}
+async function answerPeer(peerId,peerName,sdp){const pc=makePC(peerId,peerName);await pc.setRemoteDescription(new RTCSessionDescription(sdp));const answer=await pc.createAnswer();await pc.setLocalDescription(answer);wsSend({type:'answer',to:peerId,from:myId,name:localName,sdp:answer});}
+function removePeer(peerId){if(!peers[peerId])return;try{peers[peerId].pc.close();}catch{}try{peers[peerId].audioEl?.pause();}catch{}delete peers[peerId];document.getElementById('tile-'+peerId)?.remove();updateSidebar();updateCount();}
 
 function countP(){return 1+Object.keys(peers).length;}
-function updateCount(){showBar('ok',`Подключено · ${countP()} участник${countP()===1?'':'ов'}`);}
+function updateCount(){const n=countP();showBar('ok',`Подключено · ${n} участник${n===1?'':'ов'}`);const b=document.getElementById('countBadge');if(b)b.textContent=n;}
 
-// ── VAD ───────────────────────────────────────────────────
 function setupVAD(){
   try{
-    const ctx=getAudioCtx();
-    const an=ctx.createAnalyser();an.fftSize=512;
+    const ctx=getAudioCtx();const an=ctx.createAnalyser();an.fftSize=512;
     ctx.createMediaStreamSource(localStream).connect(an);
-    const data=new Uint8Array(an.frequencyBinCount);
-    let wasSp=false;
-    setInterval(()=>{
-      an.getByteFrequencyData(data);
-      const vol=data.reduce((a,b)=>a+b,0)/data.length;
-      const sp=vol>12&&!micMuted;
-      if(sp!==wasSp){wasSp=sp;setSp('local',sp);broadcastMeta(sp);}
-    },120);
+    const data=new Uint8Array(an.frequencyBinCount);let wasSp=false;
+    setInterval(()=>{an.getByteFrequencyData(data);const vol=data.reduce((a,b)=>a+b,0)/data.length;const sp=vol>12&&!micMuted;if(sp!==wasSp){wasSp=sp;setSp('local',sp);broadcastMeta(sp);}},120);
   }catch{}
 }
 
@@ -621,62 +715,34 @@ function broadcastMeta(speaking=false){
   wsSend({type:'meta',from:myId,room:ROOM,micMuted,speaking});
 }
 
-// ── tiles ──────────────────────────────────────────────────
-function renderLocalTile(){
-  document.getElementById('emptyHint')?.remove();
-  document.getElementById('grid').appendChild(makeTile('local',localName,localStream,true));
-  updateSidebar();
-}
+function renderLocalTile(){document.getElementById('emptyHint')?.remove();document.getElementById('grid').appendChild(makeTile('local',localName,localStream,true));updateSidebar();}
 function renderPeerTile(id,name,stream){
-  if(!document.getElementById('tile-'+id)){
-    document.getElementById('grid').appendChild(makeTile(id,name,stream,false));
-  }else{
-    const v=document.querySelector('#tile-'+id+' video');
-    if(v){v.srcObject=stream;v.muted=true;} // audio handled by audioEl+gainNode
-    refreshOv(id,stream);
-  }
+  if(!document.getElementById('tile-'+id)){document.getElementById('grid').appendChild(makeTile(id,name,stream,false));}
+  else{const v=document.querySelector('#tile-'+id+' video');if(v){v.srcObject=stream;v.muted=true;}refreshOv(id,stream);}
 }
 
 function makeTile(id,name,stream,local){
-  const tile=document.createElement('div');
-  tile.className='vtile';tile.id='tile-'+id;
-  const v=document.createElement('video');
-  v.autoplay=true;v.playsInline=true;
-  v.muted=true; // always mute video elements; audio routed via Audio() + gain
-  v.srcObject=stream;
-  tile.appendChild(v);
-
+  const tile=document.createElement('div');tile.className='vtile';tile.id='tile-'+id;
+  const v=document.createElement('video');v.autoplay=true;v.playsInline=true;v.muted=true;v.srcObject=stream;tile.appendChild(v);
   const ov=document.createElement('div');ov.className='novid';ov.id='ov-'+id;
   const col=pickCol(name);
   const av=document.createElement('div');av.className='bav';av.id='bav-'+id;
-  av.style.background=col+'33';av.style.color=col;av.textContent=inits(name);
+  av.style.background=col+'20';av.style.color=col;av.textContent=inits(name);
   const bars=document.createElement('div');bars.className='wbars';bars.id='bars-'+id;
   for(let i=0;i<4;i++){const b=document.createElement('div');b.className='bar';bars.appendChild(b);}
   ov.appendChild(av);ov.appendChild(bars);tile.appendChild(ov);
-
   const lbl=document.createElement('div');lbl.className='tlabel';lbl.id='lbl-'+id;
-  lbl.innerHTML=`<span>${local?'Вы ('+name+')':name}</span>`;
-  tile.appendChild(lbl);
-
-  // expand button
-  const expBtn=document.createElement('button');
-  expBtn.className='expand-btn';
-  expBtn.title='Развернуть';
+  lbl.innerHTML=`<span>${local?'Вы ('+name+')':name}</span>`;tile.appendChild(lbl);
+  const expBtn=document.createElement('button');expBtn.className='expand-btn';expBtn.title='Развернуть';
   expBtn.innerHTML='<svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>';
   expBtn.onclick=()=>openLightbox(id,name,(id==='local'&&screenSharing&&screenStream)?screenStream:(peers[id]?.stream||stream));
   tile.appendChild(expBtn);
-
-  refreshOv(id,stream);
-  return tile;
+  refreshOv(id,stream);return tile;
 }
 
 function refreshOv(id,stream){
-  const ov=document.getElementById('ov-'+id);
-  const v=document.querySelector('#tile-'+id+' video');
-  if(!ov||!v)return;
-  // Check the actual srcObject of the video element so screen share is detected correctly
-  const srcObj=v.srcObject;
-  const hasV=srcObj&&srcObj.getVideoTracks().some(t=>t.readyState==='live');
+  const ov=document.getElementById('ov-'+id);const v=document.querySelector('#tile-'+id+' video');if(!ov||!v)return;
+  const srcObj=v.srcObject;const hasV=srcObj&&srcObj.getVideoTracks().some(t=>t.readyState==='live');
   ov.style.display=hasV?'none':'flex';
 }
 
@@ -684,49 +750,28 @@ function setSp(id,sp){
   document.getElementById('tile-'+id)?.classList.toggle('sp',sp);
   document.getElementById('bars-'+id)?.classList.toggle('on',sp);
   document.getElementById('bav-'+id)?.classList.toggle('sp',sp);
-  const sav=document.querySelector('#side-'+id+' .av');
-  if(sav)sav.classList.toggle('sp',sp);
+  const sav=document.querySelector('#side-'+id+' .av');if(sav)sav.classList.toggle('sp',sp);
 }
 
 function updateLabelMute(id,muted){
-  const lbl=document.getElementById('lbl-'+id);
-  if(!lbl)return;
+  const lbl=document.getElementById('lbl-'+id);if(!lbl)return;
   const existing=lbl.querySelector('svg');
-  if(muted&&!existing){
-    const s=document.createElementNS('http://www.w3.org/2000/svg','svg');
-    s.setAttribute('viewBox','0 0 24 24');s.style.cssText='width:11px;height:11px;fill:var(--red);flex-shrink:0';
-    s.innerHTML='<path d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z"/>';
-    lbl.insertBefore(s,lbl.firstChild);
-  }else if(!muted&&existing){existing.remove();}
+  if(muted&&!existing){const s=document.createElementNS('http://www.w3.org/2000/svg','svg');s.setAttribute('viewBox','0 0 24 24');s.style.cssText='width:11px;height:11px;fill:var(--red);flex-shrink:0';s.innerHTML='<path d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z"/>';lbl.insertBefore(s,lbl.firstChild);}
+  else if(!muted&&existing){existing.remove();}
 }
 
-function showBar(type,text){
-  const b=document.getElementById('sbar');
-  b.style.display='flex';b.className='statusbar '+type;
-  document.getElementById('stxt').textContent=text;
-}
+function showBar(type,text){const b=document.getElementById('sbar');b.style.display='flex';b.className='statusbar '+type;document.getElementById('stxt').textContent=text;}
 
-// ── lightbox / expand screen ───────────────────────────────
 let lbSourceStream=null;
 function openLightbox(id,name,stream){
-  const lb=document.getElementById('lightbox');
-  const lbVid=document.getElementById('lbVideo');
-  // Always use the live video element's srcObject so screen share shows correctly
+  const lb=document.getElementById('lightbox');const lbVid=document.getElementById('lbVideo');
   const tileVid=document.querySelector('#tile-'+id+' video');
-  lbVid.srcObject=tileVid?tileVid.srcObject:stream;
-  lbVid.muted=true;
-  document.getElementById('lbLabel').textContent=name;
-  lb.classList.add('open');
+  lbVid.srcObject=tileVid?tileVid.srcObject:stream;lbVid.muted=true;
+  document.getElementById('lbLabel').textContent=name;lb.classList.add('open');
 }
-document.getElementById('lbClose').onclick=()=>{
-  const lb=document.getElementById('lightbox');
-  lb.classList.remove('open');
-  const lbVid=document.getElementById('lbVideo');
-  lbVid.srcObject=null;
-};
+document.getElementById('lbClose').onclick=()=>{const lb=document.getElementById('lightbox');lb.classList.remove('open');document.getElementById('lbVideo').srcObject=null;};
 document.getElementById('lightbox').onclick=function(e){if(e.target===this)document.getElementById('lbClose').click();};
 
-// ── sidebar ────────────────────────────────────────────────
 function updateSidebar(){
   const c=document.getElementById('sideList');c.innerHTML='';
   const all=[{id:'local',name:'Вы ('+localName+')',micMuted,speaking:false,isLocal:true}];
@@ -734,290 +779,111 @@ function updateSidebar(){
   for(const p of all){
     const col=pickCol(p.name);
     const d=document.createElement('div');d.className='participant';d.id='side-'+p.id;
-    const peerCtrlId='pctrl-'+p.id;
     d.innerHTML=`
-      <div class="av${p.speaking?' sp':''}" style="background:${col}33;color:${col}">${inits(p.name)}</div>
+      <div class="av${p.speaking?' sp':''}" style="background:${col}20;color:${col}">${inits(p.name)}</div>
       <span class="pname">${p.name}</span>
-      ${p.isLocal?'':`
-        <div class="peer-ctrl" id="${peerCtrlId}">
-          <div class="mic-ic" title="Настройки звука" onclick="togglePeerVol('${p.id}',event)">
-            <svg viewBox="0 0 24 24" fill="${p.micMuted?'var(--red)':'var(--dim)'}">
-              ${p.micMuted
-                ?'<path d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z"/>'
-                :'<path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15A1 1 0 009.1 12c-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V21c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.09-.6-.4-1.14-1.01-1.14z"/>'}
+      ${p.isLocal?`<div class="mic-ic" style="opacity:.4;cursor:default"><svg viewBox="0 0 24 24" fill="${p.micMuted?'var(--red)':'var(--muted)'}"><path d="${p.micMuted?'M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z':'M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15A1 1 0 009.1 12c-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V21c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.09-.6-.4-1.14-1.01-1.14z'}"/></svg></div>`:`
+        <div class="peer-ctrl" id="pctrl-${p.id}">
+          <div class="mic-ic" onclick="togglePeerVol('${p.id}',event)">
+            <svg viewBox="0 0 24 24" fill="${p.micMuted?'var(--red)':'var(--muted)'}">
+              <path d="${p.micMuted?'M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z':'M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15A1 1 0 009.1 12c-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V21c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.09-.6-.4-1.14-1.01-1.14z'}"/>
             </svg>
           </div>
           <div class="vol-popup" id="volpop-${p.id}">
             <div class="vol-row">
-              <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:var(--muted)"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+              <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:var(--muted)"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
               <input type="range" min="0" max="150" value="${peers[p.id]?.peerVolume??100}" oninput="setPeerVol('${p.id}',this.value)">
               <span id="pvval-${p.id}">${peers[p.id]?.peerVolume??100}</span>
             </div>
             <button class="mute-peer-btn" id="pmute-${p.id}" onclick="togglePeerMute('${p.id}')">${peers[p.id]?.peerMuted?'🔇 Заглушён (нажми для вкл)':'🔇 Заглушить только для меня'}</button>
           </div>
-        </div>
-      `}`;
+        </div>`}`;
     c.appendChild(d);
   }
 }
 
-function togglePeerVol(peerId,e){
-  e.stopPropagation();
-  const pop=document.getElementById('volpop-'+peerId);
-  if(!pop)return;
-  const isOpen=pop.classList.contains('open');
-  // close all
-  document.querySelectorAll('.vol-popup.open').forEach(p=>p.classList.remove('open'));
-  if(!isOpen)pop.classList.add('open');
-}
+function togglePeerVol(peerId,e){e.stopPropagation();const pop=document.getElementById('volpop-'+peerId);if(!pop)return;const isOpen=pop.classList.contains('open');document.querySelectorAll('.vol-popup.open').forEach(p=>p.classList.remove('open'));if(!isOpen)pop.classList.add('open');}
+function setPeerVol(peerId,val){const v=parseInt(val);const p=peers[peerId];if(!p)return;p.peerVolume=v;document.getElementById('pvval-'+peerId).textContent=v;if(p.gainNode)p.gainNode.gain.value=(v/100)*masterVolume*(p.peerMuted?0:1);}
+function togglePeerMute(peerId){const p=peers[peerId];if(!p)return;p.peerMuted=!p.peerMuted;if(p.gainNode)p.gainNode.gain.value=p.peerMuted?0:(p.peerVolume/100)*masterVolume;const btn=document.getElementById('pmute-'+peerId);if(btn)btn.textContent=p.peerMuted?'🔇 Заглушён (нажми для вкл)':'🔇 Заглушить только для меня';}
 
-function setPeerVol(peerId,val){
-  const v=parseInt(val);
-  const p=peers[peerId];
-  if(!p)return;
-  p.peerVolume=v;
-  document.getElementById('pvval-'+peerId).textContent=v;
-  if(p.gainNode) p.gainNode.gain.value=(v/100)*masterVolume*(p.peerMuted?0:1);
-}
-
-function togglePeerMute(peerId){
-  const p=peers[peerId];
-  if(!p)return;
-  p.peerMuted=!p.peerMuted;
-  if(p.gainNode) p.gainNode.gain.value=p.peerMuted?0:(p.peerVolume/100)*masterVolume;
-  const btn=document.getElementById('pmute-'+peerId);
-  if(btn)btn.textContent=p.peerMuted?'🔇 Заглушён (нажми для вкл)':'🔇 Заглушить только для меня';
-}
-
-// Close popups on outside click
 document.addEventListener('click',e=>{
   if(!e.target.closest('.peer-ctrl'))document.querySelectorAll('.vol-popup.open').forEach(p=>p.classList.remove('open'));
   if(!e.target.closest('.vol-ctrl-wrap'))document.getElementById('outVolPopup').classList.remove('open');
 });
 
-// ── controls ───────────────────────────────────────────────
 function updateMicBtn(){
-  const btn=document.getElementById('micBtn');
-  const icon=document.getElementById('micI');
+  const btn=document.getElementById('micBtn'),icon=document.getElementById('micI');
   btn.className='cb '+(micMuted?'mut':'off');
-  icon.innerHTML=micMuted
-    ?'<path d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z"/>'
-    :'<path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15A1 1 0 009.1 12c-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V21c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.09-.6-.4-1.14-1.01-1.14z"/>';
+  icon.innerHTML=micMuted?'<path d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z"/>':'<path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15A1 1 0 009.1 12c-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V21c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.09-.6-.4-1.14-1.01-1.14z"/>';
   document.getElementById('micTip').textContent=micMuted?'Вкл. микрофон':'Выкл. микрофон';
 }
-
 function updateCamBtn(){
-  const btn=document.getElementById('camBtn');
-  const icon=document.getElementById('camI');
+  const btn=document.getElementById('camBtn'),icon=document.getElementById('camI');
   btn.className='cb '+(camOff?'mut':'off');
-  icon.innerHTML=camOff
-    ?'<path d="M21 6.5l-4-4-9.5 9.5-2 4 4-2L21 6.5zM3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/>'
-    :'<path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>';
+  icon.innerHTML=camOff?'<path d="M21 6.5l-4-4-9.5 9.5-2 4 4-2L21 6.5zM3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/>':'<path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>';
   document.getElementById('camTip').textContent=camOff?'Вкл. камеру':'Выкл. камеру';
 }
 
-document.getElementById('micBtn').onclick=()=>{
-  micMuted=!micMuted;
-  localStream.getAudioTracks().forEach(t=>t.enabled=!micMuted);
-  updateMicBtn();
-  updateSidebar();broadcastMeta(false);
-};
+document.getElementById('micBtn').onclick=()=>{micMuted=!micMuted;localStream.getAudioTracks().forEach(t=>t.enabled=!micMuted);updateMicBtn();updateSidebar();broadcastMeta(false);};
 
 document.getElementById('camBtn').onclick=async()=>{
   camOff=!camOff;
-  if(camOff){
-    // stop and remove video tracks
-    localStream.getVideoTracks().forEach(t=>{t.enabled=false;});
-    // replace track for peers with null stream
-    for(const p of Object.values(peers)){
-      const s=p.pc.getSenders?.().find(s=>s.track?.kind==='video');
-      if(s)try{await s.replaceTrack(null);}catch{}
-    }
-  }else{
-    // get new camera track
-    const camId=document.getElementById('camSel')?.value||undefined;
-    try{
-      const s=await navigator.mediaDevices.getUserMedia({video:camId?{deviceId:{exact:camId}}:true});
-      const newTrack=s.getVideoTracks()[0];
-      // remove old video tracks
-      localStream.getVideoTracks().forEach(t=>{localStream.removeTrack(t);t.stop();});
-      localStream.addTrack(newTrack);
-      for(const p of Object.values(peers)){
-        const s=p.pc.getSenders?.().find(s=>s.track?.kind==='video'||s.track===null);
-        if(s)try{await s.replaceTrack(newTrack);}catch{}
-      }
-    }catch{camOff=true;}
-  }
-  refreshOv('local',localStream);
-  updateCamBtn();
+  if(camOff){localStream.getVideoTracks().forEach(t=>{t.enabled=false;});for(const p of Object.values(peers)){const s=p.pc.getSenders?.().find(s=>s.track?.kind==='video');if(s)try{await s.replaceTrack(null);}catch{}}}
+  else{const camId=document.getElementById('camSel')?.value||undefined;try{const s=await navigator.mediaDevices.getUserMedia({video:camId?{deviceId:{exact:camId}}:true});const newTrack=s.getVideoTracks()[0];localStream.getVideoTracks().forEach(t=>{localStream.removeTrack(t);t.stop();});localStream.addTrack(newTrack);for(const p of Object.values(peers)){const s=p.pc.getSenders?.().find(s=>s.track?.kind==='video'||s.track===null);if(s)try{await s.replaceTrack(newTrack);}catch{}}}catch{camOff=true;}}
+  refreshOv('local',localStream);updateCamBtn();
 };
 
-// Screen share with audio support
-// Uses AudioContext mixer to combine mic + screen audio into one track,
-// then replaceTrack() on the existing audio sender (works in all browsers).
-let screenAudioMixDest=null;
-let screenAudioSource=null;
-let micAudioSource=null;
-
-function getOrCreateMixDest(){
-  if(screenAudioMixDest)return screenAudioMixDest;
-  screenAudioMixDest=getAudioCtx().createMediaStreamDestination();
-  return screenAudioMixDest;
-}
+let screenAudioMixDest=null,screenAudioSource=null,micAudioSource=null;
+function getOrCreateMixDest(){if(screenAudioMixDest)return screenAudioMixDest;screenAudioMixDest=getAudioCtx().createMediaStreamDestination();return screenAudioMixDest;}
 
 document.getElementById('scrBtn').onclick=async()=>{
   if(screenSharing){
-    // STOP
-    screenStream.getTracks().forEach(t=>t.stop());
-    screenStream=null; screenSharing=false;
+    screenStream.getTracks().forEach(t=>t.stop());screenStream=null;screenSharing=false;
     document.getElementById('scrBtn').className='cb off';
-
-    // restore video
     const vt=camOff?null:localStream.getVideoTracks()[0];
-    for(const p of Object.values(peers)){
-      const vs=p.pc.getSenders?.().find(s=>s.track?.kind==='video'||s.track===null);
-      if(vs)vs.replaceTrack(vt||null).catch(()=>{});
-    }
-
-    // disconnect audio mixer
+    for(const p of Object.values(peers)){const vs=p.pc.getSenders?.().find(s=>s.track?.kind==='video'||s.track===null);if(vs)vs.replaceTrack(vt||null).catch(()=>{});}
     if(screenAudioSource){try{screenAudioSource.disconnect();}catch{}screenAudioSource=null;}
     if(micAudioSource){try{micAudioSource.disconnect();}catch{}micAudioSource=null;}
     screenAudioMixDest=null;
-
-    // restore plain mic track
     const micTrack=localStream.getAudioTracks()[0]||null;
-    for(const p of Object.values(peers)){
-      const as=p.pc.getSenders?.().find(s=>s.track?.kind==='audio');
-      if(as&&micTrack)as.replaceTrack(micTrack).catch(()=>{});
-    }
-
-    // notify peers: screen share stopped
-    for(const p of Object.values(peers)){
-      try{if(p.dc&&p.dc.readyState==='open')p.dc.send(JSON.stringify({screenShare:false}));}catch{}
-    }
-
-    // restore local tile
-    const lv=document.querySelector('#tile-local video');
-    if(lv)lv.srcObject=localStream;
-    document.getElementById('tile-local')?.classList.remove('screen-tile');
-    refreshOv('local',localStream);
-
+    for(const p of Object.values(peers)){const as=p.pc.getSenders?.().find(s=>s.track?.kind==='audio');if(as&&micTrack)as.replaceTrack(micTrack).catch(()=>{});}
+    for(const p of Object.values(peers)){try{if(p.dc&&p.dc.readyState==='open')p.dc.send(JSON.stringify({screenShare:false}));}catch{}}
+    const lv=document.querySelector('#tile-local video');if(lv)lv.srcObject=localStream;
+    document.getElementById('tile-local')?.classList.remove('screen-tile');refreshOv('local',localStream);
   }else{
-    // START
-    try{
-      screenStream=await navigator.mediaDevices.getDisplayMedia({
-        video:{cursor:'always'},
-        audio:{echoCancellation:false,noiseSuppression:false,sampleRate:44100}
-      });
-    }catch(e){console.warn('screen share cancelled',e);return;}
-
-    screenSharing=true;
-    document.getElementById('scrBtn').className='cb act';
+    try{screenStream=await navigator.mediaDevices.getDisplayMedia({video:{cursor:'always'},audio:{echoCancellation:false,noiseSuppression:false,sampleRate:44100}});}
+    catch(e){console.warn('screen share cancelled',e);return;}
+    screenSharing=true;document.getElementById('scrBtn').className='cb act';
     const st=screenStream.getVideoTracks()[0];
-
-    // send screen video to peers — use replaceTrack or addTrack if no video sender exists
-    for(const p of Object.values(peers)){
-      const vs=p.pc.getSenders?.().find(s=>s.track?.kind==='video'||s.track===null);
-      if(vs){
-        vs.replaceTrack(st).catch(()=>{});
-      } else {
-        try{p.pc.addTrack(st,screenStream);}catch{}
-      }
-    }
-
-    // resume AudioContext (browser blocks it until user gesture)
+    for(const p of Object.values(peers)){const vs=p.pc.getSenders?.().find(s=>s.track?.kind==='video'||s.track===null);if(vs){vs.replaceTrack(st).catch(()=>{});}else{try{p.pc.addTrack(st,screenStream);}catch{}}}
     try{
-      const ctx=getAudioCtx();
-      if(ctx.state==='suspended') await ctx.resume();
-
-      const screenAudioTracks=screenStream.getAudioTracks();
-      const dest=getOrCreateMixDest();
-      const micTrack=localStream.getAudioTracks()[0];
-      if(micTrack){
-        micAudioSource=ctx.createMediaStreamSource(new MediaStream([micTrack]));
-        micAudioSource.connect(dest);
-      }
-      if(screenAudioTracks.length>0){
-        screenAudioSource=ctx.createMediaStreamSource(new MediaStream([screenAudioTracks[0]]));
-        screenAudioSource.connect(dest);
-      }
-      // small delay so dest.stream tracks are ready
-      await new Promise(r=>setTimeout(r,100));
-      const mixedTrack=dest.stream.getAudioTracks()[0];
-      if(mixedTrack){
-        for(const p of Object.values(peers)){
-          const as=p.pc.getSenders?.().find(s=>s.track?.kind==='audio');
-          if(as){
-            as.replaceTrack(mixedTrack).catch(()=>{});
-          } else {
-            try{p.pc.addTrack(mixedTrack,dest.stream);}catch{}
-          }
-        }
-      }
+      const ctx=getAudioCtx();if(ctx.state==='suspended')await ctx.resume();
+      const screenAudioTracks=screenStream.getAudioTracks();const dest=getOrCreateMixDest();const micTrack=localStream.getAudioTracks()[0];
+      if(micTrack){micAudioSource=ctx.createMediaStreamSource(new MediaStream([micTrack]));micAudioSource.connect(dest);}
+      if(screenAudioTracks.length>0){screenAudioSource=ctx.createMediaStreamSource(new MediaStream([screenAudioTracks[0]]));screenAudioSource.connect(dest);}
+      await new Promise(r=>setTimeout(r,100));const mixedTrack=dest.stream.getAudioTracks()[0];
+      if(mixedTrack){for(const p of Object.values(peers)){const as=p.pc.getSenders?.().find(s=>s.track?.kind==='audio');if(as){as.replaceTrack(mixedTrack).catch(()=>{});}else{try{p.pc.addTrack(mixedTrack,dest.stream);}catch{}}}}
     }catch(e){console.warn('audio mix failed',e);}
-
-    // notify peers: screen share started so they can mark the tile
-    for(const p of Object.values(peers)){
-      try{if(p.dc&&p.dc.readyState==='open')p.dc.send(JSON.stringify({screenShare:true,screenPeerId:myId}));}catch{}
-    }
-
-    // show screen in local tile
-    const lv=document.querySelector('#tile-local video');
-    if(lv){lv.srcObject=screenStream;lv.muted=true;}
-    document.getElementById('tile-local')?.classList.add('screen-tile');
-    refreshOv('local',screenStream);
-
+    for(const p of Object.values(peers)){try{if(p.dc&&p.dc.readyState==='open')p.dc.send(JSON.stringify({screenShare:true,screenPeerId:myId}));}catch{}}
+    const lv=document.querySelector('#tile-local video');if(lv){lv.srcObject=screenStream;lv.muted=true;}
+    document.getElementById('tile-local')?.classList.add('screen-tile');refreshOv('local',screenStream);
     st.onended=()=>{if(screenSharing)document.getElementById('scrBtn').click();};
   }
 };
 
-// Master volume + deafen
-document.getElementById('spkBtn').onclick=(e)=>{
-  e.stopPropagation();
-  document.getElementById('outVolPopup').classList.toggle('open');
-};
-
-document.getElementById('masterVol').oninput=function(){
-  masterVolume=this.value/100;
-  document.getElementById('masterVolVal').textContent=this.value;
-  updateAllGains();
-};
-
-function updateAllGains(){
-  for(const[id,p] of Object.entries(peers)){
-    if(p.gainNode) p.gainNode.gain.value=deafened?0:(p.peerVolume/100)*masterVolume*(p.peerMuted?0:1);
-  }
-}
+document.getElementById('spkBtn').onclick=(e)=>{e.stopPropagation();document.getElementById('outVolPopup').classList.toggle('open');};
+document.getElementById('masterVol').oninput=function(){masterVolume=this.value/100;document.getElementById('masterVolVal').textContent=this.value;updateAllGains();};
+function updateAllGains(){for(const[id,p] of Object.entries(peers)){if(p.gainNode)p.gainNode.gain.value=deafened?0:(p.peerVolume/100)*masterVolume*(p.peerMuted?0:1);}}
 
 document.getElementById('deafBtn').onclick=()=>{
   deafened=!deafened;
-  const btn=document.getElementById('deafBtn');
-  const spkBtn=document.getElementById('spkBtn');
-  const spkI=document.getElementById('spkI');
-
+  const btn=document.getElementById('deafBtn'),spkBtn=document.getElementById('spkBtn'),spkI=document.getElementById('spkI');
   btn.textContent=deafened?'🎧 Включить наушники':'🎧 Заглушить наушники';
-  btn.style.background=deafened?'var(--red-dim)':'var(--card)';
-  btn.style.color=deafened?'var(--red)':'var(--text)';
-  btn.style.borderColor=deafened?'rgba(242,63,67,.3)':'var(--border)';
-
+  btn.style.background=deafened?'var(--red-soft)':'';btn.style.color=deafened?'var(--red)':'';btn.style.borderColor=deafened?'rgba(239,68,68,.2)':'';
   spkBtn.className='cb '+(deafened?'mut':'off');
-  spkI.innerHTML=deafened
-    ?'<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>'
-    :'<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
-
-  // mute/unmute all audio elements and gain nodes
-  for(const p of Object.values(peers)){
-    if(p.audioEl)p.audioEl.muted=deafened;
-    if(p.gainNode) p.gainNode.gain.value=deafened?0:(p.peerVolume/100)*masterVolume*(p.peerMuted?0:1);
-  }
-
-  // also mute own mic when deafened (like Discord)
-  if(deafened&&!micMuted){
-    micMuted=true;
-    localStream.getAudioTracks().forEach(t=>t.enabled=false);
-    updateMicBtn();
-    updateSidebar();broadcastMeta(false);
-  }
+  spkI.innerHTML=deafened?'<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>':'<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
+  for(const p of Object.values(peers)){if(p.audioEl)p.audioEl.muted=deafened;if(p.gainNode)p.gainNode.gain.value=deafened?0:(p.peerVolume/100)*masterVolume*(p.peerMuted?0:1);}
+  if(deafened&&!micMuted){micMuted=true;localStream.getAudioTracks().forEach(t=>t.enabled=false);updateMicBtn();updateSidebar();broadcastMeta(false);}
 };
 
 document.getElementById('lvBtn').onclick=()=>{
