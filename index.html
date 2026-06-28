@@ -64,57 +64,60 @@ header{
 
 main{flex:1;display:flex;overflow:hidden;min-height:0}
 
-/* ─── SIDEBAR ─────────────── */
-.sidebar{
-  width:230px;background:var(--surface);
-  border-right:1px solid var(--border);
-  display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;
+/* ─── PARTICIPANTS BAR ─────────────── */
+.participants-bar{
+  height:72px;flex-shrink:0;
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;
+  padding:0 16px;gap:6px;overflow-x:auto;overflow-y:hidden;
 }
-.sidebar-top{padding:16px 12px 12px;border-bottom:1px solid var(--border)}
-.s-label{
+.participants-bar::-webkit-scrollbar{height:3px}
+.participants-bar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+.pbar-label{
   font-size:10px;font-weight:600;color:var(--muted);
-  text-transform:uppercase;letter-spacing:1px;padding:0 4px;margin-bottom:6px;
+  text-transform:uppercase;letter-spacing:.8px;
+  flex-shrink:0;padding-right:10px;border-right:1px solid var(--border2);margin-right:4px;
+  white-space:nowrap;
 }
-.channel-item{
-  display:flex;align-items:center;gap:8px;
-  padding:8px 10px;border-radius:var(--r);
-  color:var(--text);font-size:13px;font-weight:500;
-  cursor:pointer;transition:background .12s;
-  background:var(--accent-soft);border:1px solid rgba(56,189,248,.18);
+.pcard{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:6px 10px;border-radius:10px;
+  min-width:56px;cursor:default;
+  transition:background .12s;position:relative;flex-shrink:0;
 }
-.channel-item svg{width:15px;height:15px;fill:var(--accent);flex-shrink:0}
-.participants-section{padding:12px;flex:1}
-.p-header{
-  display:flex;align-items:center;justify-content:space-between;
-  font-size:10px;font-weight:600;color:var(--muted);
-  text-transform:uppercase;letter-spacing:1px;
-  padding:0 4px;margin-bottom:8px;
-}
-.p-count{
-  background:rgba(255,255,255,.07);color:var(--text2);
-  font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;
-}
-.participant{
-  display:flex;align-items:center;gap:9px;
-  padding:6px 8px;border-radius:8px;
-  font-size:12px;color:var(--text2);cursor:default;
-  transition:background .1s;
-}
-.participant:hover{background:rgba(255,255,255,.04);color:var(--text)}
-.av{
-  width:30px;height:30px;border-radius:50%;
+.pcard:hover{background:rgba(255,255,255,.05)}
+.pcard-av{
+  width:36px;height:36px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  font-size:11px;font-weight:700;flex-shrink:0;
-  transition:box-shadow .2s;
+  font-size:13px;font-weight:700;flex-shrink:0;
+  transition:box-shadow .2s;position:relative;
 }
-.av.sp{box-shadow:0 0 0 2px var(--green)}
-.pname{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.pcard-av.sp{box-shadow:0 0 0 2.5px var(--green),0 0 12px rgba(34,197,94,.2)}
+.pcard-name{
+  font-size:10px;font-weight:500;color:var(--text2);
+  max-width:56px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  line-height:1;
+}
+.pcard-mic{
+  position:absolute;bottom:-2px;right:-2px;
+  width:16px;height:16px;border-radius:50%;
+  background:var(--surface);
+  display:flex;align-items:center;justify-content:center;
+}
+.pcard-mic svg{width:10px;height:10px}
+.peer-ctrl{position:relative}
 .mic-ic{
   width:18px;height:18px;flex-shrink:0;display:flex;align-items:center;
   cursor:pointer;border-radius:4px;padding:2px;transition:background .12s;
 }
 .mic-ic:hover{background:rgba(255,255,255,.08)}
 .mic-ic svg{width:14px;height:14px}
+/* vol popup for pcard */
+.pcard .vol-popup{
+  bottom:100%;top:auto;right:auto;left:50%;transform:translateX(-50%);
+  margin-bottom:6px;margin-top:0;
+}
 
 /* vol popup */
 .vol-popup{
@@ -533,7 +536,6 @@ main{flex:1;display:flex;overflow:hidden;min-height:0}
 ::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.14)}
 
 @media(max-width:768px){
-  .sidebar{display:none}
   .chat-panel{width:100%;position:fixed;bottom:0;left:0;right:0;height:55vh;border-left:none;border-top:1px solid var(--border);z-index:50;border-radius:16px 16px 0 0;}
   .chat-panel.hidden{height:0;width:100%;opacity:0}
   .jcard{width:92vw;padding:24px 18px}
@@ -648,22 +650,6 @@ main{flex:1;display:flex;overflow:hidden;min-height:0}
 </header>
 
 <main>
-  <div class="sidebar">
-    <div class="sidebar-top">
-      <div class="s-label">Каналы</div>
-      <div class="channel-item">
-        <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15A1 1 0 009.1 12c-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V21c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.09-.6-.4-1.14-1.01-1.14z"/></svg>
-        Общий
-      </div>
-    </div>
-    <div class="participants-section">
-      <div class="p-header">
-        В комнате <span class="p-count" id="countBadge">0</span>
-      </div>
-      <div id="sideList"></div>
-    </div>
-  </div>
-
   <div class="content">
     <!-- VIDEO AREA -->
     <div class="video-area">
@@ -679,6 +665,12 @@ main{flex:1;display:flex;overflow:hidden;min-height:0}
           <h3>Комната пуста</h3>
           <p>Войди и поделись ссылкой, чтобы начать общение</p>
         </div>
+      </div>
+
+      <!-- PARTICIPANTS BAR -->
+      <div class="participants-bar" id="participantsBar" style="display:none">
+        <span class="pbar-label">В комнате <span id="countBadge">0</span></span>
+        <div id="sideList" style="display:flex;align-items:center;gap:4px;"></div>
       </div>
 
       <!-- CONTROLS -->
@@ -1030,7 +1022,16 @@ function makePC(peerId,peerName){
     if(!peers[peerId].stream)peers[peerId].stream=new MediaStream();
     peers[peerId].stream.addTrack(e.track);
     if(e.track.kind==='audio'){setupPeerAudio(peerId,e.track);}
-    else{renderPeerTile(peerId,peerName,peers[peerId].stream);const tv=document.querySelector('#tile-'+peerId+' video');if(tv){tv.srcObject=peers[peerId].stream;}refreshOv(peerId,peers[peerId].stream);updateSidebar();updateCount();}
+    else{
+      renderPeerTile(peerId,peerName,peers[peerId].stream);
+      const tv=document.querySelector('#tile-'+peerId+' video');
+      if(tv){tv.srcObject=peers[peerId].stream;}
+      // Wait for track to become live
+      const checkTrack=()=>{refreshOv(peerId,peers[peerId].stream);};
+      e.track.onunmute=checkTrack;
+      setTimeout(checkTrack,500);setTimeout(checkTrack,1500);
+      updateSidebar();updateCount();
+    }
   };
   pc.onicecandidate=e=>{if(e.candidate)wsSend({type:'ice',to:peerId,from:myId,candidate:e.candidate});};
   pc.onconnectionstatechange=()=>{if(pc.connectionState==='failed'||pc.connectionState==='disconnected')removePeer(peerId);};
@@ -1067,12 +1068,14 @@ function applyDC(peerId,raw){
       if(tile){
         if(d.screenShare){
           tile.classList.add('screen-tile');
-          // add hide button to tile actions if not present
+          // Force refresh overlay - screen share means video track is live
+          setTimeout(()=>refreshOv(peerId,peers[peerId]?.stream),300);
         }else{
           tile.classList.remove('screen-tile');
           hiddenScreens.delete(peerId);
           tile.classList.remove('screen-hidden');
           tile.querySelector('.screen-overlay')?.remove();
+          refreshOv(peerId,peers[peerId]?.stream);
         }
       }
       return;
@@ -1107,6 +1110,9 @@ function renderLocalTile(){document.getElementById('emptyHint')?.remove();docume
 function renderPeerTile(id,name,stream){
   if(!document.getElementById('tile-'+id)){document.getElementById('grid').appendChild(makeTile(id,name,stream,false));}
   else{const v=document.querySelector('#tile-'+id+' video');if(v){v.srcObject=stream;v.muted=true;}refreshOv(id,stream);}
+  // Additional delayed refresh to catch late-arriving video tracks
+  setTimeout(()=>refreshOv(id,peers[id]?.stream||stream),500);
+  setTimeout(()=>refreshOv(id,peers[id]?.stream||stream),1500);
 }
 
 function makeTile(id,name,stream,local){
@@ -1151,15 +1157,24 @@ function makeTile(id,name,stream,local){
 
 function refreshOv(id,stream){
   const ov=document.getElementById('ov-'+id);const v=document.querySelector('#tile-'+id+' video');if(!ov||!v)return;
-  const srcObj=v.srcObject;const hasV=srcObj&&srcObj.getVideoTracks().some(t=>t.readyState==='live');
+  const srcObj=v.srcObject;
+  const hasV=srcObj&&srcObj.getVideoTracks().some(t=>t.readyState==='live'&&t.enabled!==false);
   ov.style.display=hasV?'none':'flex';
+  // retry once after a short delay in case track isn't ready yet
+  if(!hasV&&srcObj&&srcObj.getVideoTracks().length>0){
+    setTimeout(()=>{
+      const ov2=document.getElementById('ov-'+id);const v2=document.querySelector('#tile-'+id+' video');if(!ov2||!v2)return;
+      const s=v2.srcObject;const h=s&&s.getVideoTracks().some(t=>t.readyState==='live');
+      ov2.style.display=h?'none':'flex';
+    },800);
+  }
 }
 
 function setSp(id,sp){
   document.getElementById('tile-'+id)?.classList.toggle('sp',sp);
   document.getElementById('bars-'+id)?.classList.toggle('on',sp);
   document.getElementById('bav-'+id)?.classList.toggle('sp',sp);
-  const sav=document.querySelector('#side-'+id+' .av');if(sav)sav.classList.toggle('sp',sp);
+  const sav=document.getElementById('bav-s-'+id);if(sav)sav.classList.toggle('sp',sp);
 }
 
 function updateLabelMute(id,muted){
@@ -1182,30 +1197,31 @@ document.getElementById('lightbox').onclick=function(e){if(e.target===this)docum
 
 function updateSidebar(){
   const c=document.getElementById('sideList');c.innerHTML='';
+  const bar=document.getElementById('participantsBar');
   const all=[{id:'local',name:'Вы ('+localName+')',micMuted,speaking:false,isLocal:true}];
   for(const[id,p] of Object.entries(peers))all.push({id,name:p.name,micMuted:p.micMuted,speaking:p.speaking,isLocal:false});
+  if(bar)bar.style.display=all.length>0?'flex':'none';
   for(const p of all){
     const col=pickCol(p.name);
-    const d=document.createElement('div');d.className='participant';d.id='side-'+p.id;
-    d.innerHTML=`
-      <div class="av${p.speaking?' sp':''}" style="background:${col}20;color:${col}">${inits(p.name)}</div>
-      <span class="pname">${p.name}</span>
-      ${p.isLocal?`<div class="mic-ic" style="opacity:.4;cursor:default"><svg viewBox="0 0 24 24" fill="${p.micMuted?'var(--red)':'var(--muted)'}"><path d="${p.micMuted?'M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z':'M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15A1 1 0 009.1 12c-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V21c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.09-.6-.4-1.14-1.01-1.14z'}"/></svg></div>`:`
-        <div class="peer-ctrl" id="pctrl-${p.id}">
-          <div class="mic-ic" onclick="togglePeerVol('${p.id}',event)">
-            <svg viewBox="0 0 24 24" fill="${p.micMuted?'var(--red)':'var(--muted)'}">
-              <path d="${p.micMuted?'M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z':'M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15A1 1 0 009.1 12c-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V21c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.09-.6-.4-1.14-1.01-1.14z'}"/>
-            </svg>
-          </div>
-          <div class="vol-popup" id="volpop-${p.id}">
-            <div class="vol-row">
-              <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:var(--muted)"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
-              <input type="range" min="0" max="150" value="${peers[p.id]?.peerVolume??100}" oninput="setPeerVol('${p.id}',this.value)">
-              <span id="pvval-${p.id}">${peers[p.id]?.peerVolume??100}</span>
-            </div>
-            <button class="mute-peer-btn" id="pmute-${p.id}" onclick="togglePeerMute('${p.id}')">${peers[p.id]?.peerMuted?'🔇 Заглушён (нажми для вкл)':'🔇 Заглушить только для меня'}</button>
-          </div>
-        </div>`}`;
+    const d=document.createElement('div');d.className='pcard';d.id='side-'+p.id;
+    const av=document.createElement('div');av.className='pcard-av'+(p.speaking?' sp':'');av.id='bav-s-'+p.id;
+    av.style.background=col+'22';av.style.color=col;av.textContent=inits(p.name);
+    // mic badge
+    const micBadge=document.createElement('div');micBadge.className='pcard-mic';
+    micBadge.innerHTML=`<svg viewBox="0 0 24 24" fill="${p.micMuted?'var(--red)':'var(--muted)'}"><path d="${p.micMuted?'M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z':'M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15A1 1 0 009.1 12c-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V21c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.09-.6-.4-1.14-1.01-1.14z'}"/></svg>`;
+    av.appendChild(micBadge);
+    const name=document.createElement('div');name.className='pcard-name';name.textContent=p.isLocal?'Вы':p.name;
+    d.appendChild(av);d.appendChild(name);
+    // volume popup for peers
+    if(!p.isLocal){
+      const ctrl=document.createElement('div');ctrl.className='peer-ctrl';ctrl.id='pctrl-'+p.id;
+      const micIc=document.createElement('div');micIc.className='mic-ic';micIc.style.display='none';// hidden, using badge on avatar instead
+      const volPop=document.createElement('div');volPop.className='vol-popup';volPop.id='volpop-'+p.id;
+      volPop.innerHTML=`<div class="vol-row"><svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:var(--muted)"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg><input type="range" min="0" max="150" value="${peers[p.id]?.peerVolume??100}" oninput="setPeerVol('${p.id}',this.value)"><span id="pvval-${p.id}">${peers[p.id]?.peerVolume??100}</span></div><button class="mute-peer-btn" id="pmute-${p.id}" onclick="togglePeerMute('${p.id}')">${peers[p.id]?.peerMuted?'🔇 Заглушён':'🔇 Заглушить только для меня'}</button>`;
+      ctrl.appendChild(volPop);
+      d.appendChild(ctrl);
+      d.onclick=(e)=>{e.stopPropagation();const pop=document.getElementById('volpop-'+p.id);if(!pop)return;const isOpen=pop.classList.contains('open');document.querySelectorAll('.vol-popup.open').forEach(x=>x.classList.remove('open'));if(!isOpen)pop.classList.add('open');};
+    }
     c.appendChild(d);
   }
 }
